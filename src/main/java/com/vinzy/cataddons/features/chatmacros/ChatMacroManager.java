@@ -1,0 +1,166 @@
+package com.vinzy.cataddons.features.chatmacros;
+
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
+import com.vinzy.cataddons.keybinds.Keybind;
+import com.vinzy.cataddons.keybinds.KeybindManager;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import org.lwjgl.glfw.GLFW;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.lang.reflect.Type;
+import java.nio.file.*;
+import java.util.*;
+
+import static com.vinzy.cataddons.commands.CommandCat.sendMessage;
+
+public class ChatMacroManager {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger("DU/ChatMacros");
+
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static Path getSaveFile() {
+        return new File(MinecraftClient.getInstance().runDirectory, "DupersUnited/chatmacros.json").toPath();
+    }
+
+    private static final Map<String, ChatMacro> macros = new LinkedHashMap<>();
+
+    private record ScheduledMessage(String text, long sendAt) {}
+
+    private static final Queue<ScheduledMessage> queue = new LinkedList<>();
+    private static boolean tickRegistered = false;
+
+    private static void ensureTickRegistered() {
+        if (tickRegistered) return;
+        tickRegistered = true;
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (client.player == null) return;
+            long now = System.currentTimeMillis();
+            while (!queue.isEmpty() && queue.peek().sendAt() <= now) {
+                String msg = queue.poll().text();
+                if (msg.startsWith("/")) client.player.networkHandler.sendChatCommand(msg.substring(1));
+                else
+                    client.player.networkHandler.sendChatMessage(msg);
+            }
+        });
+    }
+
+    public static void addMacro(String name, List<MacroMessage> messages, int keyCode) {
+        addMacro(name, messages, keyCode, false);
+    }
+
+    public static void addMacro(String name, List<MacroMessage> messages, int keyCode, boolean silent) {
+        ChatMacro macro = new ChatMacro(name, messages, keyCode);
+        macros.put(name.toLowerCase(Locale.ROOT), macro);
+        registerKeybind(macro);
+        save();
+        if (!silent) {
+            sendMessage(Text.literal("Created macro ")
+                    .append(Text.literal(name).formatted(Formatting.AQUA))
+                    .append("."), true);
+        }
+    }
+
+    public static void removeMacro(String name) {
+        removeMacro(name, false);
+    }
+
+    public static void removeMacro(String name, boolean silent) {
+        ChatMacro removed = macros.remove(name.toLowerCase(Locale.ROOT));
+        if (removed == null) return;
+
+        KeybindManager.unregisterKeybind(name.toLowerCase(Locale.ROOT));
+
+        save();
+
+        if (!silent) {
+            sendMessage(Text.literal("ChatMacro ")
+                    .append(Text.literal(name).formatted(Formatting.AQUA))
+                    .append(" is now deleted."), true);
+        }
+    }
+
+    public static void editMessages(String name, List<MacroMessage> messages) {
+        ChatMacro macro = macros.get(name.toLowerCase(Locale.ROOT));
+        if (macro == null) return;
+
+        macro.setMessages(messages);
+        save();
+    }
+
+    public static void rebind(String name, int newKey) {
+        ChatMacro macro = macros.get(name.toLowerCase(Locale.ROOT));
+        if (macro == null) {
+            sendMessage(Text.literal("Macro ").formatted(Formatting.RED)
+                    .append(Text.literal(name).formatted(Formatting.AQUA))
+                    .append(" not found."), true);
+            return;
+        }
+        macro.setKeyCode(newKey);
+        registerKeybind(macro);
+        save();
+    }
+
+    public static Map<String, ChatMacro> getMacros() { return Collections.unmodifiableMap(macros); }
+
+    public static void save() {
+        try {
+            Files.createDirectories(getSaveFile().getParent());
+            Type type = new TypeToken<List<ChatMacro>>() {}.getType();
+            String json = GSON.toJson(new ArrayList<>(macros.values()), type);
+            Files.writeString(getSaveFile(), json);
+        } catch (IOException e) {
+            sendMessage(Text.empty()
+                    .append(Text.literal("An error has occurred while trying to save chatmacros! ").formatted(Formatting.RED))
+                    .append("Error: " + e.getMessage()), true);
+        }
+    }
+
+    public static void load() {
+        ensureTickRegistered();
+        if (!Files.exists(getSaveFile())) return;
+        try {
+            String json = Files.readString(getSaveFile());
+            Type type = new TypeToken<List<ChatMacro>>() {}.getType();
+            List<ChatMacro> loaded = GSON.fromJson(json, type);
+            if (loaded == null) return;
+            for (ChatMacro macro : loaded) {
+                macros.put(macro.getName().toLowerCase(Locale.ROOT), macro);
+                registerKeybind(macro);
+            }
+        } catch (Exception e) {
+            LOGGER.error("An error has occurred while trying to load chatmacros!", e);
+        }
+    }
+
+    private static void registerKeybind(ChatMacro macro) {
+        KeybindManager.registerKeybind(new Keybind(macro.getName().toLowerCase(Locale.ROOT), macro.getKeyCode()) {
+            @Override
+            public void onPress() {
+                MinecraftClient client = MinecraftClient.getInstance();
+                if (client.player == null || client.currentScreen != null) return;
+
+                long t = System.currentTimeMillis();
+                for (MacroMessage msg : macro.getMessages()) {
+                    if (msg.getText().isEmpty()) continue;
+                    if (msg.getDelayMs() <= 0) {
+                        // hopefulyl fixes my issue?!
+                        if (msg.getText().startsWith("/")) client.player.networkHandler.sendChatCommand(msg.getText().substring(1));
+                        else
+                            client.player.networkHandler.sendChatMessage(msg.getText());
+                    } else {
+                        // has delay, now we queue it >_<
+                        t += msg.getDelayMs();
+                        queue.add(new ScheduledMessage(msg.getText(), t));
+                    }
+                }
+            }
+        });
+    }
+}

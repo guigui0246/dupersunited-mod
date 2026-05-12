@@ -1,5 +1,6 @@
 package com.vinzy.cataddons.events;
 
+import com.vinzy.cataddons.commands.subcommands.WaitCommand;
 import com.vinzy.cataddons.features.PayAllManager;
 import com.vinzy.cataddons.features.PluginScanner;
 import com.vinzy.cataddons.features.auth.AuthManager;
@@ -35,6 +36,7 @@ public class TickEvent {
             PluginScanner.onTick();
             PayAllManager.onTick();
             AuthManager.onTick();
+            WaitCommand.onTick();
         });
     }
 }

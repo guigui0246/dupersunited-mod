@@ -37,6 +37,7 @@ public final class HelpCommand {
         DESCRIPTIONS.put("force-op", ForceOpCommand.getDescription());
         DESCRIPTIONS.put("click-slot", ClickSlotCommand.getDescription());
         DESCRIPTIONS.put("drop", DropCommand.getDescription());
+        DESCRIPTIONS.put("wait", WaitCommand.getDescription());
     }
 
     public static LiteralArgumentBuilder<FabricClientCommandSource> register() {

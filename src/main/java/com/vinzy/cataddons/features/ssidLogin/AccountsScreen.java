@@ -146,6 +146,12 @@ public class AccountsScreen extends Screen {
                 filteredAccounts.add(e);
             }
         }
+        // favorites float to the top (obv)
+        filteredAccounts.sort((a, b) -> {
+            boolean af = AccountProxyLinks.isFavorite(a.name);
+            boolean bf = AccountProxyLinks.isFavorite(b.name);
+            return Boolean.compare(bf, af);
+        });
         scrollOffset = Math.min(scrollOffset, Math.max(0, filteredAccounts.size() - visibleRows()));
     }
 
@@ -185,14 +191,14 @@ public class AccountsScreen extends Screen {
             this.addDrawableChild(ButtonWidget.builder(
                     Text.literal("Login"),
                     btn -> attemptLogin(entry, btn)
-            ).dimensions(this.width - 170, y, 50, 20).build());
+            ).dimensions(this.width - 225, y, 50, 20).build());
 
             // proxy link button
             boolean hasLink = AccountProxyLinks.hasLink(entry.name);
             this.addDrawableChild(ButtonWidget.builder(
                             Text.literal(hasLink ? "§aProxy" : "§7Proxy"),
                             btn -> client.setScreen(new LinkProxyScreen(this, entry.name))
-                    ).dimensions(this.width - 115, y, 50, 20)
+                ).dimensions(this.width - 170, y, 50, 20)
                     .tooltip(net.minecraft.client.gui.tooltip.Tooltip.of(
                             Text.literal(hasLink
                                     ? "Linked: " + AccountProxyLinks.getLinkedProxy(entry.name) + "\nClick to change"
@@ -207,12 +213,26 @@ public class AccountsScreen extends Screen {
                                 AccountProxyLinks.toggleBypass(entry.name);
                                 rebuildList();
                             }
-                    ).dimensions(this.width - 60, y, 50, 20)
+                    ).dimensions(this.width - 115, y, 50, 20)
                     .tooltip(net.minecraft.client.gui.tooltip.Tooltip.of(
                             Text.literal(hasBypass
                                     ? "Proxy bypass is currently enabled, you can connect without proxy\nClick to disable"
                                     : "Proxy bypass is currently disabled\nClick to allow connecting without a proxy")
                     )).build());
+
+            // favorite toggle button
+            boolean isFav = AccountProxyLinks.isFavorite(entry.name);
+            this.addDrawableChild(ButtonWidget.builder(
+                    Text.literal(isFav ? "§e★" : "§7☆"),
+                    btn -> {
+                        AccountProxyLinks.toggleFavorite(entry.name);
+                        applyFilter();
+                        rebuildList();
+                    }
+                ).dimensions(this.width - 60, y, 20, 20)
+                .tooltip(net.minecraft.client.gui.tooltip.Tooltip.of(
+                    Text.literal(isFav ? "Unfavourite account" : "Favourite account (pins to top)")
+                )).build());
         }
 
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Confirm"), btn -> {
@@ -335,7 +355,7 @@ public class AccountsScreen extends Screen {
 
         // title
         context.drawCenteredTextWithShadow(this.textRenderer,
-                Text.literal("Session Token Login").formatted(Formatting.BOLD),
+                Text.literal("Account Manager").formatted(Formatting.BOLD),
                 this.width / 2, 12, LAVENDER);
 
         // account count subtitle
@@ -369,7 +389,7 @@ public class AccountsScreen extends Screen {
 
             // alternating row bg
             int rowBg = (index % 2 == 0) ? DEEP_INDIGO : MANTLE;
-            context.fill(5, y - 2, this.width - 175, y + 22, rowBg);
+            context.fill(5, y - 2, this.width - 230, y + 22, rowBg);
 
             // left accent bar — green if has proxy link, surface1 otherwise
             boolean hasLink = AccountProxyLinks.hasLink(entry.name);

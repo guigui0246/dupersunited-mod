@@ -22,6 +22,7 @@ public class AccountProxyLinks {
 
     public static Map<String, String> links = new HashMap<>();
     public static Set<String> bypassAccounts = new ObjectOpenHashSet<>();
+    public static Set<String> favoritedAccounts = new ObjectOpenHashSet<>();
 
     public static void save() {
         if (!FOLDER.exists()) FOLDER.mkdirs();
@@ -29,6 +30,7 @@ public class AccountProxyLinks {
             JsonObject root = new JsonObject();
             root.add("links", GSON.toJsonTree(links));
             root.add("bypassAccounts", GSON.toJsonTree(bypassAccounts));
+            root.add("favoritedAccounts", GSON.toJsonTree(favoritedAccounts));
             GSON.toJson(root, writer);
         } catch (Exception e) { e.printStackTrace(); }
     }
@@ -44,6 +46,10 @@ public class AccountProxyLinks {
             if (root.has("bypassAccounts")) {
                 Set<String> loaded = GSON.fromJson(root.get("bypassAccounts"), new TypeToken<Set<String>>(){}.getType());
                 if (loaded != null) bypassAccounts = loaded;
+            }
+            if (root.has("favoritedAccounts")) {
+                Set<String> loaded = GSON.fromJson(root.get("favoritedAccounts"), new TypeToken<Set<String>>(){}.getType());
+                if (loaded != null) favoritedAccounts = loaded;
             }
         } catch (Exception e) {
         }
@@ -76,6 +82,18 @@ public class AccountProxyLinks {
             bypassAccounts.remove(accountName);
         } else {
             bypassAccounts.add(accountName);
+        }
+        save();
+    }
+    public static boolean isFavorite(String accountName) {
+        return favoritedAccounts.contains(accountName);
+    }
+
+    public static void toggleFavorite(String accountName) {
+        if (favoritedAccounts.contains(accountName)) {
+            favoritedAccounts.remove(accountName);
+        } else {
+            favoritedAccounts.add(accountName);
         }
         save();
     }

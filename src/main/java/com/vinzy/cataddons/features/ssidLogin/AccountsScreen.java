@@ -259,6 +259,7 @@ public class AccountsScreen extends Screen {
                 } else {
                     // no linked proxy then disable proxy
                     ProxyConfigManager.globalEnabled = false;
+                    ProxyConfigManager.activeProfileName = "";
                     ProxyConfigManager.save();
                 }
 

@@ -122,6 +122,12 @@ public class MainClient implements ModInitializer {
             ProxyConfigManager.globalEnabled = true;
             ProxyConfigManager.save();
             //LOGGER.info("Auto Applied Proxy Profile '{}' for launch account '{}'", linkedProxy, launchUsername); worked
+        } else if (launchUsername != null && !AccountProxyLinks.hasLink(launchUsername)) {
+            // no proxy linked to this account, make sure proxy is disabled haha oopsie
+            ProxyConfigManager.globalEnabled = false;
+            ProxyConfigManager.activeProfileName = "";
+            ProxyConfigManager.save();
+            //LOGGER.info("No proxy linked for launch account '{}', disabling proxy!", launchUsername); bamgangnbang
         }
 
         ConfigManager.load();

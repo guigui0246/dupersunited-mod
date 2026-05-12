@@ -1,7 +1,8 @@
-package com.vinzy.cataddons.features.screens.mainmenu;
+package com.vinzy.cataddons.features.screens.mainmenu.alerts;
 
 import com.vinzy.cataddons.MainClient;
 import com.vinzy.cataddons.features.ConfigManager;
+import com.vinzy.cataddons.features.ServerAlertConfig;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
@@ -21,12 +22,13 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-public class HallOfShame {
+public class HallOfFame {
 
     // code for this is god awful but it does the job so who gaf
+    // also yeah i did just copy paste HallOfShame and change a couple things
 
-    private static final String LIST = "https://raw.githubusercontent.com/DupersUnited/hallofshame/refs/heads/main/notcoolman.json";
-    private static Set<String> shameSet = new HashSet<>();
+    private static final String LIST = "https://raw.githubusercontent.com/DupersUnited/halloffame/refs/heads/main/cooldudes.json";
+    private static Set<String> fameSet = new HashSet<>();
     private static long lastFetched = 0L;
     private static final long CACHE_TTL_MS = 10 * 60 * 1000L;
 
@@ -42,13 +44,13 @@ public class HallOfShame {
     }
 
     private static boolean lookup(String serverAddress) {
-        if (shameSet.isEmpty()) return false;
+        if (fameSet.isEmpty()) return false;
 
         String host = normalise(serverAddress);
 
-        if (shameSet.contains(host)) return true;
+        if (fameSet.contains(host)) return true;
 
-        for (String listed : shameSet) {
+        for (String listed : fameSet) {
             if (host.endsWith("." + listed) || listed.endsWith("." + host)) {
                 return true;
             }
@@ -84,11 +86,11 @@ public class HallOfShame {
             reader.close();
 
             if (!parsed.isEmpty()) {
-                shameSet = parsed;
+                fameSet = parsed;
                 lastFetched = now;
             }
         } catch (Exception e) {
-            MainClient.LOGGER.error("HoS fetch failed: " + e.getMessage());
+            MainClient.LOGGER.error("HoF fetch failed: " + e.getMessage());
         }
     }
 
@@ -102,7 +104,6 @@ public class HallOfShame {
         }
 
         String json = sb.toString();
-
         String[] entries = json.split("\\},\\s*\\{");
 
         for (String entry : entries) {
@@ -135,36 +136,34 @@ public class HallOfShame {
 
     public static void prefetch() {
         if (System.currentTimeMillis() - lastFetched >= CACHE_TTL_MS) {
-            CompletableFuture.runAsync(HallOfShame::refreshIfStale);
+            CompletableFuture.runAsync(HallOfFame::refreshIfStale);
         }
     }
 
-    // now the cool warning shit
-    public static class WarningScreen extends Screen {
+    public static class NoticeScreen extends Screen {
 
         private final Screen parent;
         private final ServerInfo serverInfo;
 
-        public WarningScreen(Screen parent, ServerInfo serverInfo) {
-            super(Text.literal("Hall of Shame Warning"));
+        public NoticeScreen(Screen parent, ServerInfo serverInfo) {
+            super(Text.literal("Hall of Fame Notice"));
             this.parent = parent;
             this.serverInfo = serverInfo;
         }
 
         @Override
         protected void init() {
-            this.addDrawableChild(ButtonWidget.builder(Text.literal("§cBack Out"), btn ->
-                    client.setScreen(parent)
-            ).dimensions(this.width / 2 - 155, this.height / 2 + 15, 150, 20).build());
-
-            this.addDrawableChild(ButtonWidget.builder(Text.literal("§aConnect Anyway"), btn -> {
+            this.addDrawableChild(ButtonWidget.builder(Text.literal("§aConnect"), btn -> {
                 ServerAddress address = ServerAddress.parse(serverInfo.address);
                 ConnectScreen.connect(new MultiplayerScreen(new TitleScreen()), client, address, serverInfo, false, null);
-            }).dimensions(this.width / 2 + 5, this.height / 2 + 15, 150, 20).build());
+            }).dimensions(this.width / 2 - 155, this.height / 2 + 15, 150, 20).build());
 
-            this.addDrawableChild(ButtonWidget.builder(Text.literal("Disable Notifications"), btn -> {
-                ConfigManager.hallOfShameCheckEnabled = false;
-                ConfigManager.save();
+            this.addDrawableChild(ButtonWidget.builder(Text.literal("§cBack Out"), btn ->
+                client.setScreen(parent)
+            ).dimensions(this.width / 2 + 5, this.height / 2 + 15, 150, 20).build());
+
+            this.addDrawableChild(ButtonWidget.builder(Text.literal("Disable for this server"), btn -> {
+                ServerAlertConfig.dismiss(serverInfo.address);
                 ServerAddress address = ServerAddress.parse(serverInfo.address);
                 ConnectScreen.connect(new MultiplayerScreen(new TitleScreen()), client, address, serverInfo, false, null);
             }).dimensions(this.width / 2 - 75, this.height / 2 + 40, 150, 20).build());
@@ -180,16 +179,16 @@ public class HallOfShame {
             super.render(context, mouseX, mouseY, delta);
 
             context.drawCenteredTextWithShadow(textRenderer,
-                    Text.literal("§c! WARNING !"),
-                    this.width / 2, this.height / 2 - 50, 0xFFFFFFFF);
+                Text.literal("§a★ HALL OF FAME ★"),
+                this.width / 2, this.height / 2 - 50, 0xFFFFFFFF);
 
             context.drawCenteredTextWithShadow(textRenderer,
-                    Text.literal("§4" + serverInfo.address + "§r has been flagged for using exploit(s) to ban people!"),
-                    this.width / 2, this.height / 2 - 32, 0xFFFFFFFF);
+                Text.literal("§2" + serverInfo.address + "§r is a recognised as an ethical server by DupersUnited!"),
+                this.width / 2, this.height / 2 - 32, 0xFFFFFFFF);
 
             context.drawCenteredTextWithShadow(textRenderer,
-                    Text.literal("Are you sure you want to connect to this server?"),
-                    this.width / 2, this.height / 2 - 16, 0xFFFFFFFF);
+                Text.literal("Please remember to §c§lNOT§r dupe on servers with ethical ways of making money, if you find an exploit here you should report it to them!"),
+                this.width / 2, this.height / 2 - 16, 0xFFFFFFFF);
         }
 
         @Override

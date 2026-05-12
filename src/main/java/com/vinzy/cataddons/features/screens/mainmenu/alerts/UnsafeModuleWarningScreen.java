@@ -1,4 +1,4 @@
-package com.vinzy.cataddons.features.screens.mainmenu;
+package com.vinzy.cataddons.features.screens.mainmenu.alerts;
 
 import com.vinzy.cataddons.features.screens.ClickGui;
 import net.minecraft.client.gui.DrawContext;

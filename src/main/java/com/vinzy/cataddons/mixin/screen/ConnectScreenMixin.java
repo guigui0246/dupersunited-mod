@@ -1,7 +1,6 @@
 package com.vinzy.cataddons.mixin.screen;
 
 import com.vinzy.cataddons.features.AutoReconnect;
-import com.vinzy.cataddons.features.screens.mainmenu.HallOfShame;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
@@ -19,6 +18,5 @@ public class ConnectScreenMixin {
     @Inject(method = "connect(Lnet/minecraft/client/gui/screen/Screen;Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/client/network/ServerAddress;Lnet/minecraft/client/network/ServerInfo;ZLnet/minecraft/client/network/CookieStorage;)V", at = @At("HEAD"))
     private static void cataddons$cacheServer(Screen screen, MinecraftClient client, ServerAddress address, ServerInfo info, boolean quickPlay, CookieStorage cookieStorage, CallbackInfo ci) {
         AutoReconnect.cacheAddress(address.getAddress() + ":" + address.getPort());
-        HallOfShame.prefetch();
     }
 }

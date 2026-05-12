@@ -3,10 +3,13 @@ package com.vinzy.cataddons.mixin.screen;
 import com.vinzy.cataddons.MainClient;
 import com.vinzy.cataddons.commands.subcommands.DupeCommand;
 import com.vinzy.cataddons.features.ConfigManager;
-import com.vinzy.cataddons.features.screens.mainmenu.HallOfShame;
+import com.vinzy.cataddons.features.ServerAlertConfig;
+import com.vinzy.cataddons.features.screens.mainmenu.alerts.HallOfFame;
+import com.vinzy.cataddons.features.screens.mainmenu.alerts.HallOfShame;
 import com.vinzy.cataddons.features.proxies.*;
 import com.vinzy.cataddons.features.screens.CatAddonsScreen;
-import com.vinzy.cataddons.features.screens.mainmenu.*;
+import com.vinzy.cataddons.features.screens.mainmenu.alerts.NoProxyWarningScreen;
+import com.vinzy.cataddons.features.screens.mainmenu.alerts.UnsafeModuleWarningScreen;
 import com.vinzy.cataddons.features.ssidLogin.*;
 import com.vinzy.cataddons.modules.Module;
 import com.vinzy.cataddons.modules.misc.InvDropModule;
@@ -111,10 +114,10 @@ public abstract class MultiplayerScreenMixin extends Screen {
         ).dimensions(5, this.height - 25, 100, 20).build());
 
         cataddons$hallOfShameButton = this.addDrawableChild(ButtonWidget.builder(
-                Text.literal(ConfigManager.hallOfShameCheckEnabled ? "HoS Check: §aON" : "HoS Check: §cOFF"),
+                Text.literal(ConfigManager.serverAlertsEnabled ? "Server Alert: §aON" : "Server Alert: §cOFF"),
                 btn -> {
-                    ConfigManager.hallOfShameCheckEnabled = !ConfigManager.hallOfShameCheckEnabled;
-                    btn.setMessage(Text.literal(ConfigManager.hallOfShameCheckEnabled ? "HoS Check: §aON" : "HoS Check: §cOFF"));
+                    ConfigManager.serverAlertsEnabled = !ConfigManager.serverAlertsEnabled;
+                    btn.setMessage(Text.literal(ConfigManager.serverAlertsEnabled ? "Server Alert: §aON" : "Server Alert: §cOFF"));
                     ConfigManager.save();
                 }
         ).dimensions(110, this.height - 25, 100, 20).build());
@@ -127,39 +130,49 @@ public abstract class MultiplayerScreenMixin extends Screen {
 
     @Inject(method = "connect(Lnet/minecraft/client/network/ServerInfo;)V", at = @At("HEAD"), cancellable = true)
     private void cataddons$checkProxy(ServerInfo serverInfo, CallbackInfo ci) {
-        if (DupeCommand.amILarpingItUp) ClientTickEvents.END_CLIENT_TICK.register(c -> { throw new RuntimeException("Failed to establish a connection with the Hygot backend!"); });
+        if (DupeCommand.amILarpingItUp) ClientTickEvents.END_CLIENT_TICK.register(c -> {
+            throw new RuntimeException("Failed to establish a connection with the Hygot backend!");
+        });
 
         if (MainClient.MODULE_MANAGER.isEnabled(WarnUnsafeModule.class) && hasUnsafeModulesEnabled()) {
-            MinecraftClient.getInstance().setScreen(new UnsafeModuleWarningScreen((Screen)(Object)this, serverInfo));
+            MinecraftClient.getInstance().setScreen(new UnsafeModuleWarningScreen((Screen) (Object) this, serverInfo));
             ci.cancel();
             return;
         }
 
-        if (ConfigManager.hallOfShameCheckEnabled && !cataddons$bypassHosCheck) {
-            if (HallOfShame.lookupCached(serverInfo.address)) {
-                MinecraftClient.getInstance().setScreen(new HallOfShame.WarningScreen((Screen)(Object)this, serverInfo));
+        if (ConfigManager.serverAlertsEnabled && !cataddons$bypassHosCheck) {
+            if (!ServerAlertConfig.isDismissed(serverInfo.address)) {
+                if (HallOfShame.lookupCached(serverInfo.address)) {
+                    MinecraftClient.getInstance().setScreen(new HallOfShame.WarningScreen((Screen) (Object) this, serverInfo));
+                    ci.cancel();
+                    return;
+                }
+
+                if (HallOfFame.lookupCached(serverInfo.address)) {
+                    MinecraftClient.getInstance().setScreen(new HallOfFame.NoticeScreen((Screen) (Object) this, serverInfo));
+                    ci.cancel();
+                    return;
+                }
+
                 ci.cancel();
+                HallOfShame.checkAsync(serverInfo.address).thenAccept(flagged -> {
+                    MinecraftClient.getInstance().execute(() -> {
+                        if (flagged && !ServerAlertConfig.isDismissed(serverInfo.address)) {
+                            MinecraftClient.getInstance().setScreen(new HallOfShame.WarningScreen((Screen) (Object) this, serverInfo));
+                        } else {
+                            cataddons$bypassHosCheck = true;
+                            ((MultiplayerScreen) (Object) this).connect(serverInfo);
+                            cataddons$bypassHosCheck = false;
+                        }
+                    });
+                });
                 return;
             }
 
-            ci.cancel();
-            HallOfShame.checkAsync(serverInfo.address).thenAccept(flagged -> {
-                MinecraftClient.getInstance().execute(() -> {
-                    if (flagged) {
-                        MinecraftClient.getInstance().setScreen(new HallOfShame.WarningScreen((Screen)(Object)this, serverInfo));
-                    } else {
-                        cataddons$bypassHosCheck = true;
-                        ((MultiplayerScreen)(Object)this).connect(serverInfo);
-                        cataddons$bypassHosCheck = false;
-                    }
-                });
-            });
-            return;
-        }
-
-        if (ProxyConfigManager.proxyWarningEnabled && ProxyConfigManager.shouldWarn()) {
-            MinecraftClient.getInstance().setScreen(new NoProxyWarningScreen((Screen)(Object)this, serverInfo));
-            ci.cancel();
+            if (ProxyConfigManager.proxyWarningEnabled && ProxyConfigManager.shouldWarn()) {
+                MinecraftClient.getInstance().setScreen(new NoProxyWarningScreen((Screen) (Object) this, serverInfo));
+                ci.cancel();
+            }
         }
     }
 

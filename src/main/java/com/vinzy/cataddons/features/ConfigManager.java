@@ -44,7 +44,7 @@ public class ConfigManager {
     public static boolean autoReconnectEnabled = false;
     public static boolean rpBypassEnabled = false;
     public static boolean brandSpoofEnabled = false;
-    public static boolean hallOfShameCheckEnabled = true;
+    public static boolean serverAlertsEnabled = true;
     public static String addonToken = "";
     public static String addonApiBaseUrl = "https://cataddons-server.dupers.wtf";
     public static String addonWsBaseUrl = "wss://cataddons-server.dupers.wtf/ws/private";
@@ -58,7 +58,7 @@ public class ConfigManager {
         root.addProperty("autoReconnectEnabled", autoReconnectEnabled);
         root.addProperty("rpBypassEnabled", rpBypassEnabled);
         root.addProperty("brandSpoofEnabled", brandSpoofEnabled);
-        root.addProperty("hallOfShameCheckEnabled", hallOfShameCheckEnabled);
+        root.addProperty("serverAlertsEnabled", serverAlertsEnabled);
         root.addProperty("addonToken", addonToken);
         root.addProperty("addonApiBaseUrl", addonApiBaseUrl);
         root.addProperty("addonWsBaseUrl", addonWsBaseUrl);
@@ -157,7 +157,7 @@ public class ConfigManager {
                 GSON.toJson(root, writer);
             }
         } catch (IOException e) {
-            System.err.println("[CatAddons] Failed to save config: " + e.getMessage());
+            MainClient.LOGGER.error("Failed to save config: " + e.getMessage());
         }
     }
 
@@ -181,8 +181,8 @@ public class ConfigManager {
             if (root.has("brandSpoofEnabled")) {
                 brandSpoofEnabled = root.get("brandSpoofEnabled").getAsBoolean();
             }
-            if (root.has("hallOfShameCheckEnabled")) {
-                hallOfShameCheckEnabled = root.get("hallOfShameCheckEnabled").getAsBoolean();
+            if (root.has("serverAlertsEnabled ")) {
+                serverAlertsEnabled = root.get("serverAlertsEnabled ").getAsBoolean();
             }
             if (root.has("addonToken")) {
                 addonToken = root.get("addonToken").getAsString().trim();
@@ -234,7 +234,7 @@ public class ConfigManager {
                                 bs.setKeyCode(el.getAsInt());
                             }
                         } catch (Exception e) {
-                            System.err.println("[CatAddons] Bad value for "
+                            MainClient.LOGGER.error("Bad value for "
                                 + module.getName() + "." + s.getName() + ": " + e.getMessage());
                         }
                     }
@@ -304,7 +304,7 @@ public class ConfigManager {
             }
 
         } catch (IOException e) {
-            System.err.println("[CatAddons] Failed to load config: " + e.getMessage());
+            MainClient.LOGGER.error("Failed to load config: " + e.getMessage());
         }
     }
 }

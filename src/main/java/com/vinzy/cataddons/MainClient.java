@@ -7,10 +7,13 @@ import com.vinzy.cataddons.events.WorldEvent;
 import com.vinzy.cataddons.features.ClickSlotManager;
 import com.vinzy.cataddons.features.ConfigManager;
 import com.vinzy.cataddons.features.HudOverlay;
+import com.vinzy.cataddons.features.ServerAlertConfig;
 import com.vinzy.cataddons.features.auth.AuthManager;
 import com.vinzy.cataddons.features.chatmacros.*;
 import com.vinzy.cataddons.features.proxies.*;
 import com.vinzy.cataddons.features.screens.mainmenu.*;
+import com.vinzy.cataddons.features.screens.mainmenu.alerts.HallOfFame;
+import com.vinzy.cataddons.features.screens.mainmenu.alerts.HallOfShame;
 import com.vinzy.cataddons.features.ssidLogin.*;
 import com.vinzy.cataddons.keybinds.*;
 import com.vinzy.cataddons.modules.*;
@@ -131,7 +134,11 @@ public class MainClient implements ModInitializer {
         }
 
         ConfigManager.load();
+        ServerAlertConfig.load();
         ChatMacroManager.load();
+
+        HallOfShame.prefetch();
+        HallOfFame.prefetch();
 
         //other
         ClickSlotManager.init();

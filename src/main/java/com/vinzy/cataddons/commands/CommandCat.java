@@ -61,6 +61,7 @@ public final class CommandCat {
                             .then(ForceOpCommand.register())
                             .then(DropCommand.register())
                             .then(WaitCommand.register())
+                            .then(KickCommand.register())
             );
         });
     }

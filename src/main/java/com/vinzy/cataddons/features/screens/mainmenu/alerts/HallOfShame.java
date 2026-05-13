@@ -12,6 +12,7 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.text.Text;
+import net.minecraft.util.Util;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -167,7 +168,11 @@ public class HallOfShame {
                 ServerAlertConfig.dismiss(serverInfo.address);
                 ServerAddress address = ServerAddress.parse(serverInfo.address);
                 ConnectScreen.connect(new MultiplayerScreen(new TitleScreen()), client, address, serverInfo, false, null);
-            }).dimensions(this.width / 2 - 75, this.height / 2 + 40, 150, 20).build());
+            }).dimensions(this.width / 2 - 155, this.height / 2 + 40, 150, 20).build());
+
+            this.addDrawableChild(ButtonWidget.builder(Text.literal("§bDownload ExploitPreventer"), btn -> {
+                Util.getOperatingSystem().open("https://modrinth.com/mod/exploitpreventer");
+            }).dimensions(this.width / 2 + 5, this.height / 2 + 40, 150, 20).build());
         }
 
         @Override

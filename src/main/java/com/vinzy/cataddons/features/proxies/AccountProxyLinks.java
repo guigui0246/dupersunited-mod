@@ -1,70 +1,38 @@
 package com.vinzy.cataddons.features.proxies;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
-import com.vinzy.cataddons.MainClient;
 import com.vinzy.cataddons.SharedVariables;
+import com.vinzy.cataddons.features.AsyncConfigs;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 public class AccountProxyLinks {
     private static final Path FILE = SharedVariables.DIRECTORY.resolve("accountsproxies.json");
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public static Map<String, String> links = new HashMap<>();
     public static Set<String> bypassAccounts = new ObjectOpenHashSet<>();
     public static Set<String> favoritedAccounts = new ObjectOpenHashSet<>();
 
     public static void save() {
-        try {
-            Files.createDirectories(FILE.getParent());
-
-            try (Writer writer = Files.newBufferedWriter(FILE)) {
-                JsonObject root = new JsonObject();
-                root.add("links", GSON.toJsonTree(links));
-                root.add("bypassAccounts", GSON.toJsonTree(bypassAccounts));
-                root.add("favoritedAccounts", GSON.toJsonTree(favoritedAccounts));
-
-                GSON.toJson(root, writer);
-            }
-        } catch (IOException e) {
-            MainClient.LOGGER.error("Failed to save account proxy links", e);
-        }
+        ConfigData data = new ConfigData(links, bypassAccounts, favoritedAccounts);
+        AsyncConfigs.save(data, FILE, "account proxy links");
     }
 
-    public static void load() {
-        if (!Files.isRegularFile(FILE)) return;
-
-        try (Reader reader = Files.newBufferedReader(FILE)) {
-            JsonObject root = GSON.fromJson(reader, JsonObject.class);
-            if (root.has("links")) {
-                Map<String, String> loaded = GSON.fromJson(root.get("links"), new TypeToken<Map<String, String>>(){}.getType());
-                if (loaded != null) links = loaded;
-            }
-            if (root.has("bypassAccounts")) {
-                Set<String> loaded = GSON.fromJson(root.get("bypassAccounts"), new TypeToken<Set<String>>(){}.getType());
-                if (loaded != null) bypassAccounts = loaded;
-            }
-            if (root.has("favoritedAccounts")) {
-                Set<String> loaded = GSON.fromJson(root.get("favoritedAccounts"), new TypeToken<Set<String>>(){}.getType());
-                if (loaded != null) favoritedAccounts = loaded;
-            }
-        } catch (Exception e) {
-            MainClient.LOGGER.error("Failed to load account proxy links", e);
-        }
+    public static CompletableFuture<Void> load() {
+        return AsyncConfigs.load(ConfigData.class, FILE, "account proxy links").thenAccept(data -> {
+            links = data.links != null ? data.links : new HashMap<>();
+            bypassAccounts = data.bypassAccounts != null ? data.bypassAccounts : new ObjectOpenHashSet<>();
+            favoritedAccounts = data.favoritedAccounts != null ? data.favoritedAccounts : new ObjectOpenHashSet<>();
+        });
     }
 
     public static void link(String accountName, String proxyProfileName) {
         links.put(accountName, proxyProfileName);
-
         save();
     }
 
@@ -105,4 +73,6 @@ public class AccountProxyLinks {
         }
         save();
     }
+
+    private record ConfigData(Map<String, String> links, Set<String> bypassAccounts, Set<String> favoritedAccounts) {}
 }

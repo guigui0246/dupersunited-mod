@@ -1,19 +1,16 @@
 package com.vinzy.cataddons.features.proxies;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.vinzy.cataddons.MainClient;
 import com.vinzy.cataddons.SharedVariables;
+import com.vinzy.cataddons.features.AsyncConfigs;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class ProxyConfigManager {
     private static final Path FILE = SharedVariables.DIRECTORY.resolve("proxies.json");
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public static boolean globalEnabled = false;
     public static boolean proxyWarningEnabled = false;
@@ -22,32 +19,25 @@ public class ProxyConfigManager {
     public static List<String> customAccountPaths = new ArrayList<>();
 
     public static void save() {
-        try {
-            Files.createDirectories(FILE.getParent());
-
-            try (Writer writer = Files.newBufferedWriter(FILE)) {
-                GSON.toJson(new ConfigData(globalEnabled, proxyWarningEnabled, activeProfileName, profiles, customAccountPaths), writer);
-            }
-        } catch (IOException e) {
-            MainClient.LOGGER.error("Error saving proxy configs", e);
-        }
+        ConfigData data = new ConfigData(globalEnabled, proxyWarningEnabled, activeProfileName, profiles, customAccountPaths);
+        AsyncConfigs.save(data, FILE, "proxy configs");
     }
 
-    public static void load() {
-        if (!Files.isRegularFile(FILE)) return;
+    public static CompletableFuture<Void> load() {
+        return AsyncConfigs.load(ConfigData.class, FILE, "proxy configs").thenAccept(data -> {
+            globalEnabled = data.globalEnabled;
+            proxyWarningEnabled = data.proxyWarningEnabled;
+            activeProfileName = data.activeProfileName;
+            profiles = data.profiles != null ? data.profiles : new ArrayList<>();
+            customAccountPaths = data.customAccountPaths != null ? data.customAccountPaths : new ArrayList<>();
 
-        try (Reader reader = Files.newBufferedReader(FILE)) {
-            ConfigData data = GSON.fromJson(reader, ConfigData.class);
-            if (data != null) {
-                globalEnabled = data.globalEnabled;
-                proxyWarningEnabled = data.proxyWarningEnabled;
-                activeProfileName = data.activeProfileName;
-                profiles = data.profiles != null ? data.profiles : new ArrayList<>();
-                customAccountPaths = data.customAccountPaths != null ? data.customAccountPaths : new ArrayList<>();
+            Map<String, ProxyProfiles> seen = new LinkedHashMap<>();
+            for (ProxyProfiles p : profiles) {
+                seen.putIfAbsent(p.name.toLowerCase(Locale.ROOT), p);
+                MainClient.LOGGER.info("Removed {} as it's a duplicate proxy.", p.name);
             }
-        } catch (IOException e) {
-            MainClient.LOGGER.error("Error loading proxy configs", e);
-        }
+            profiles = new ArrayList<>(seen.values());
+        });
     }
 
     public static ProxyProfiles getActiveProfile() {

@@ -4,7 +4,6 @@ import com.vinzy.cataddons.commands.CommandCat;
 import com.vinzy.cataddons.events.GuiEvent;
 import com.vinzy.cataddons.events.TickEvent;
 import com.vinzy.cataddons.events.WorldEvent;
-import com.vinzy.cataddons.features.ClickSlotManager;
 import com.vinzy.cataddons.features.ConfigManager;
 import com.vinzy.cataddons.features.HudOverlay;
 import com.vinzy.cataddons.features.ServerAlertConfig;
@@ -27,12 +26,8 @@ import net.minecraft.client.gui.screen.TitleScreen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
-import static com.vinzy.cataddons.features.proxies.ProxyConfigManager.profiles;
 import static com.vinzy.cataddons.features.ssidLogin.SessionManager.*;
 
 public class MainClient implements ModInitializer {
@@ -79,18 +74,53 @@ public class MainClient implements ModInitializer {
         MODULE_MANAGER.register(new VanillaFlyModule());
         MODULE_MANAGER.register(new NoFallModule());
 
-        //enable by defualt
+        //enable by default
         MODULE_MANAGER.getModule(WatermarkModule.class).setEnabled(true);
         MODULE_MANAGER.getModule(GuiUtilsModule.class).setEnabled(true);
         MODULE_MANAGER.getModule(TpsCounterModule.class).setEnabled(true);
         MODULE_MANAGER.getModule(WarnUnsafeModule.class).setEnabled(true);
 
         //config
+        CompletableFuture<Void> proxyConfigTask = CompletableFuture.allOf(
+            ProxyConfigManager.load(),
+            AccountProxyLinks.load()
+        ).thenAccept(nil -> {
+            // auto apply proxy linked to the launch account if it exists
+            String launchUsername = SessionManager.getSession() != null ? SessionManager.getSession().getUsername() : null;
+            if (launchUsername != null && AccountProxyLinks.hasLink(launchUsername) && !AccountProxyLinks.hasBypass(launchUsername)) {
+                String linkedProxy = AccountProxyLinks.getLinkedProxy(launchUsername);
+                ProxyConfigManager.activeProfileName = linkedProxy;
+                ProxyConfigManager.globalEnabled = true;
+                ProxyConfigManager.save();
+                //LOGGER.info("Auto Applied Proxy Profile '{}' for launch account '{}'", linkedProxy, launchUsername); worked
+            } else if (launchUsername != null && !AccountProxyLinks.hasLink(launchUsername)) {
+                // no proxy linked to this account, make sure proxy is disabled haha oopsie
+                ProxyConfigManager.globalEnabled = false;
+                ProxyConfigManager.activeProfileName = "";
+                ProxyConfigManager.save();
+                //LOGGER.info("No proxy linked for launch account '{}', disabling proxy!", launchUsername); bamgangnbang
+            }
+
+            MainClient.LOGGER.info("[Session proxies] Composed");
+        });
+
+        CompletableFuture<Void> configLoadTask = CompletableFuture.allOf(
+            proxyConfigTask,
+            ConfigManager.load(),
+            ServerAlertConfig.load(),
+            ChatMacroManager.load()
+        );
+
+        HallOfShame.prefetch();
+        HallOfFame.prefetch();
+
+        //config
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             FreecamModule freecam = MODULE_MANAGER.getModule(FreecamModule.class);
             if (freecam != null && freecam.isEnabled()) freecam.setEnabled(false);
+
+            ConfigManager.saveBlocking();
         }));
-        Runtime.getRuntime().addShutdownHook(new Thread(ConfigManager::save));
 
         //events
         WorldEvent.register();
@@ -105,38 +135,6 @@ public class MainClient implements ModInitializer {
         KeybindManager.registerKeybind(new PacketPauseKeybind());
         KeybindManager.registerKeybind(new GhostBlockKeybind());
         KeybindManager.registerKeybind(JoinServerInviteKeybind.INSTANCE);
-
-        //config
-        ProxyConfigManager.load();
-        Map<String, ProxyProfiles> seen = new LinkedHashMap<>();
-        for (ProxyProfiles p : profiles) {
-            seen.putIfAbsent(p.name.toLowerCase(Locale.ROOT), p);
-            MainClient.LOGGER.info("Removed " + p.name + " as it's a duplicate proxy.");
-        }
-        profiles = new ArrayList<>(seen.values());
-        AccountProxyLinks.load();
-        // auto apply proxy linked to the launch account if it exists
-        String launchUsername = SessionManager.getSession() != null ? SessionManager.getSession().getUsername() : null;
-        if (launchUsername != null && AccountProxyLinks.hasLink(launchUsername) && !AccountProxyLinks.hasBypass(launchUsername)) {
-            String linkedProxy = AccountProxyLinks.getLinkedProxy(launchUsername);
-            ProxyConfigManager.activeProfileName = linkedProxy;
-            ProxyConfigManager.globalEnabled = true;
-            ProxyConfigManager.save();
-            //LOGGER.info("Auto Applied Proxy Profile '{}' for launch account '{}'", linkedProxy, launchUsername); worked
-        } else if (launchUsername != null && !AccountProxyLinks.hasLink(launchUsername)) {
-            // no proxy linked to this account, make sure proxy is disabled haha oopsie
-            ProxyConfigManager.globalEnabled = false;
-            ProxyConfigManager.activeProfileName = "";
-            ProxyConfigManager.save();
-            //LOGGER.info("No proxy linked for launch account '{}', disabling proxy!", launchUsername); bamgangnbang
-        }
-
-        ConfigManager.load();
-        ServerAlertConfig.load();
-        ChatMacroManager.load();
-
-        HallOfShame.prefetch();
-        HallOfFame.prefetch();
 
         //other
         HudOverlay.init();
@@ -153,5 +151,10 @@ public class MainClient implements ModInitializer {
                 });
             }
         });
+
+        // ensure configs loaded before finishing init
+        try {
+            configLoadTask.join();
+        } catch (Exception ignored) {}
     }
 }

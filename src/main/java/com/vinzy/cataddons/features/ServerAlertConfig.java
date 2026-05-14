@@ -1,6 +1,5 @@
 package com.vinzy.cataddons.features;
 
-import com.vinzy.cataddons.MainClient;
 import com.google.gson.*;
 import com.vinzy.cataddons.SharedVariables;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -8,38 +7,26 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.io.*;
 import java.nio.file.*;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 public class ServerAlertConfig {
 
     private static final Path FILE = SharedVariables.DIRECTORY.resolve("whitelist-alerts.json");
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Set<String> dismissed = new ObjectOpenHashSet<>();
 
-    public static void load() {
-        if (!Files.isRegularFile(FILE)) return;
+    public static void save() {
+        JsonArray arr = new JsonArray();
+        dismissed.forEach(arr::add);
 
-        try (Reader reader = Files.newBufferedReader(FILE)) {
-            JsonArray arr = GSON.fromJson(reader, JsonArray.class);
+        AsyncConfigs.save(arr, FILE, "server alert config");
+    }
+
+    public static CompletableFuture<Void> load() {
+        return AsyncConfigs.load(JsonArray.class, FILE, "server alert config").thenAccept(arr -> {
             for (JsonElement el : arr) {
                 dismissed.add(el.getAsString().toLowerCase().trim());
             }
-        } catch (Exception e) {
-            MainClient.LOGGER.error("Failed to load server alert config", e);
-        }
-    }
-
-    public static void save() {
-        try {
-            Files.createDirectories(FILE.getParent());
-
-            try (Writer writer = Files.newBufferedWriter(FILE)) {
-                JsonArray arr = new JsonArray();
-                dismissed.forEach(arr::add);
-                GSON.toJson(arr, writer);
-            }
-        } catch (Exception e) {
-            MainClient.LOGGER.error("Failed to save server alert config", e);
-        }
+        });
     }
 
     public static boolean isDismissed(String address) {

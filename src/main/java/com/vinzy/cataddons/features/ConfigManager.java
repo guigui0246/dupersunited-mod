@@ -19,17 +19,14 @@ import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import org.joml.Vector2i;
 
-import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 public class ConfigManager {
 
     private static final Path CONFIG_FILE = SharedVariables.DIRECTORY.resolve("config.json");
-
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private static final List<HudElement> HUD_ELEMENTS = List.of(
         HudEditorScreen.WATERMARK,
@@ -50,6 +47,14 @@ public class ConfigManager {
     public static boolean firstLaunch = true;
 
     public static void save() {
+        AsyncConfigs.save(serialize(), CONFIG_FILE, "config");
+    }
+
+    public static void saveBlocking() {
+        AsyncConfigs.saveSync(serialize(), CONFIG_FILE, "config");
+    }
+
+    private static JsonObject serialize() {
         JsonObject root = new JsonObject();
 
         root.addProperty("firstLaunch", firstLaunch);
@@ -148,23 +153,11 @@ public class ConfigManager {
             root.add("clickguiHudPanelPosition", clickguiHudPanelPosition);
         }
 
-        try {
-            Files.createDirectories(CONFIG_FILE.getParent());
-
-            try (Writer writer = Files.newBufferedWriter(CONFIG_FILE)) {
-                GSON.toJson(root, writer);
-            }
-        } catch (IOException e) {
-            MainClient.LOGGER.error("Failed to save config", e);
-        }
+        return root;
     }
 
-    public static void load() {
-        if (!Files.isRegularFile(CONFIG_FILE)) return;
-
-        try (Reader reader = Files.newBufferedReader(CONFIG_FILE)) {
-            JsonObject root = GSON.fromJson(reader, JsonObject.class);
-
+    public static CompletableFuture<Void> load() {
+        return AsyncConfigs.load(JsonObject.class, CONFIG_FILE, "config").thenAccept(root -> {
             if (root.has("firstLaunch")) {
                 firstLaunch = root.get("firstLaunch").getAsBoolean();
             }
@@ -297,9 +290,6 @@ public class ConfigManager {
                 JsonObject position = root.getAsJsonObject("clickguiHudPanelPosition");
                 ClickGui.hudPanelPosition = new Vector2i(position.get("x").getAsInt(), position.get("y").getAsInt());
             }
-
-        } catch (IOException e) {
-            MainClient.LOGGER.error("Failed to load config", e);
-        }
+        });
     }
 }

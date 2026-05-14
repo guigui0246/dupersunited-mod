@@ -17,7 +17,7 @@ public final class ReloadConfigCommand {
     public static LiteralArgumentBuilder<FabricClientCommandSource> register() {
         return literal("reload-config")
                 .executes(c -> {
-                    ConfigManager.load();
+                    ConfigManager.load().join();
                     CommandCat.sendMessage("Reloaded config.", true);
                     return 1;
                 });

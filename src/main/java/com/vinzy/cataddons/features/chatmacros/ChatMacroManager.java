@@ -2,30 +2,26 @@ package com.vinzy.cataddons.features.chatmacros;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import com.vinzy.cataddons.MainClient;
 import com.vinzy.cataddons.SharedVariables;
+import com.vinzy.cataddons.features.AsyncConfigs;
 import com.vinzy.cataddons.keybinds.Keybind;
 import com.vinzy.cataddons.keybinds.KeybindManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.file.*;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 import static com.vinzy.cataddons.commands.CommandCat.sendMessage;
 
 public class ChatMacroManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("DU/ChatMacros");
-
     private static final Path FILE = SharedVariables.DIRECTORY.resolve("chatmacros.json");
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private static final Map<String, ChatMacro> macros = new LinkedHashMap<>();
 
@@ -105,36 +101,17 @@ public class ChatMacroManager {
     public static Map<String, ChatMacro> getMacros() { return Collections.unmodifiableMap(macros); }
 
     public static void save() {
-        try {
-            Files.createDirectories(FILE.getParent());
-
-            try (Writer writer = Files.newBufferedWriter(FILE)) {
-                Type type = new TypeToken<List<ChatMacro>>() {}.getType();
-                GSON.toJson(new ArrayList<>(macros.values()), type, writer);
-            }
-        } catch (IOException e) {
-            sendMessage(Text.empty()
-                    .append(Text.literal("An error has occurred while trying to save chatmacros! ").formatted(Formatting.RED))
-                    .append(e.getMessage()), true);
-
-            MainClient.LOGGER.error("Error saving chatmacros", e);
-        }
+        Type type = new TypeToken<List<ChatMacro>>() {}.getType();
+        AsyncConfigs.save(new ArrayList<>(macros.values()), type, FILE, "chat macros");
     }
 
-    public static void load() {
-        if (!Files.isRegularFile(FILE)) return;
-
-        try (Reader reader = Files.newBufferedReader(FILE)) {
-            List<ChatMacro> loaded = GSON.fromJson(reader, new TypeToken<>(){});
-
-            if (loaded == null) return;
+    public static CompletableFuture<Void> load() {
+        return AsyncConfigs.load(new TypeToken<List<ChatMacro>>(){}, FILE, "chat macros").thenAccept(loaded -> {
             for (ChatMacro macro : loaded) {
                 macros.put(macro.getName().toLowerCase(Locale.ROOT), macro);
                 registerKeybind(macro);
             }
-        } catch (Exception e) {
-            LOGGER.error("An error has occurred while trying to load chatmacros!", e);
-        }
+        });
     }
 
     private static void registerKeybind(ChatMacro macro) {

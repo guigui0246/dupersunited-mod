@@ -3,6 +3,7 @@ package com.vinzy.cataddons.features.chatmacros;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.vinzy.cataddons.MainClient;
+import com.vinzy.cataddons.SharedVariables;
 import com.vinzy.cataddons.keybinds.Keybind;
 import com.vinzy.cataddons.keybinds.KeybindManager;
 import net.minecraft.client.MinecraftClient;
@@ -23,10 +24,8 @@ public class ChatMacroManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("DU/ChatMacros");
 
+    private static final Path FILE = SharedVariables.DIRECTORY.resolve("chatmacros.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static Path getSaveFile() {
-        return new File(MinecraftClient.getInstance().runDirectory, "DupersUnited/chatmacros.json").toPath();
-    }
 
     private static final Map<String, ChatMacro> macros = new LinkedHashMap<>();
 
@@ -107,10 +106,12 @@ public class ChatMacroManager {
 
     public static void save() {
         try {
-            Files.createDirectories(getSaveFile().getParent());
-            Type type = new TypeToken<List<ChatMacro>>() {}.getType();
-            String json = GSON.toJson(new ArrayList<>(macros.values()), type);
-            Files.writeString(getSaveFile(), json);
+            Files.createDirectories(FILE.getParent());
+
+            try (Writer writer = Files.newBufferedWriter(FILE)) {
+                Type type = new TypeToken<List<ChatMacro>>() {}.getType();
+                GSON.toJson(new ArrayList<>(macros.values()), type, writer);
+            }
         } catch (IOException e) {
             sendMessage(Text.empty()
                     .append(Text.literal("An error has occurred while trying to save chatmacros! ").formatted(Formatting.RED))
@@ -121,11 +122,11 @@ public class ChatMacroManager {
     }
 
     public static void load() {
-        if (!Files.exists(getSaveFile())) return;
-        try {
-            String json = Files.readString(getSaveFile());
-            Type type = new TypeToken<List<ChatMacro>>() {}.getType();
-            List<ChatMacro> loaded = GSON.fromJson(json, type);
+        if (!Files.isRegularFile(FILE)) return;
+
+        try (Reader reader = Files.newBufferedReader(FILE)) {
+            List<ChatMacro> loaded = GSON.fromJson(reader, new TypeToken<>(){});
+
             if (loaded == null) return;
             for (ChatMacro macro : loaded) {
                 macros.put(macro.getName().toLowerCase(Locale.ROOT), macro);

@@ -105,8 +105,6 @@ public class MainClient implements ModInitializer {
         KeybindManager.registerKeybind(new PacketPauseKeybind());
         KeybindManager.registerKeybind(new GhostBlockKeybind());
         KeybindManager.registerKeybind(JoinServerInviteKeybind.INSTANCE);
-        ChatMacroManager.load();
-        KeybindManager.registerTickHandler();
 
         //config
         ProxyConfigManager.load();
@@ -141,7 +139,6 @@ public class MainClient implements ModInitializer {
         HallOfFame.prefetch();
 
         //other
-        ClickSlotManager.init();
         HudOverlay.init();
         AuthManager.init();
         CommandCat.register();

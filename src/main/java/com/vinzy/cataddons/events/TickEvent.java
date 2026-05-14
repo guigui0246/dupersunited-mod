@@ -1,10 +1,13 @@
 package com.vinzy.cataddons.events;
 
 import com.vinzy.cataddons.commands.subcommands.WaitCommand;
+import com.vinzy.cataddons.features.ClickSlotManager;
 import com.vinzy.cataddons.features.PayAllManager;
 import com.vinzy.cataddons.features.PluginScanner;
 import com.vinzy.cataddons.features.auth.AuthManager;
 import com.vinzy.cataddons.features.chatmacros.ChatMacroManager;
+import com.vinzy.cataddons.keybinds.ClickGuiKeybind;
+import com.vinzy.cataddons.keybinds.KeybindManager;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.text.Text;
 
@@ -34,11 +37,14 @@ public class TickEvent {
                 MODULE_MANAGER.onTick();
             }
 
-            PluginScanner.onTick();
-            PayAllManager.onTick();
             AuthManager.onTick();
-            WaitCommand.onTick();
             ChatMacroManager.onTick();
+            ClickGuiKeybind.onTick();
+            ClickSlotManager.onTick();
+            KeybindManager.onTick();
+            PayAllManager.onTick();
+            PluginScanner.onTick();
+            WaitCommand.onTick();
         });
     }
 }

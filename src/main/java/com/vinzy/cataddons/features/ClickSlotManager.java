@@ -1,7 +1,7 @@
 package com.vinzy.cataddons.features;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.SlotActionType;
@@ -14,42 +14,42 @@ public class ClickSlotManager {
     private static long nextClickTime = 0;
     private static boolean running = false;
 
-    public static void init() {
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (!running || remaining <= 0 || client.player == null) {
-                running = false;
-                return;
-            }
+    public static void onTick() {
+        MinecraftClient client = MinecraftClient.getInstance();
 
-            long now = System.currentTimeMillis();
-            if (now < nextClickTime) return;
+        if (!running || remaining <= 0 || client.player == null) {
+            running = false;
+            return;
+        }
 
-            ScreenHandler handler = (client.player.currentScreenHandler != null)
-                    ? client.player.currentScreenHandler
-                    : client.player.playerScreenHandler;
+        long now = System.currentTimeMillis();
+        if (now < nextClickTime) return;
 
-            if (slot < 0 || slot >= handler.slots.size()) {
-                running = false;
-                return;
-            }
+        ScreenHandler handler = (client.player.currentScreenHandler != null)
+            ? client.player.currentScreenHandler
+            : client.player.playerScreenHandler;
 
-            ClickSlotC2SPacket packet = new ClickSlotC2SPacket(
-                    handler.syncId,
-                    handler.getRevision(),
-                    (short) slot,
-                    (byte) 0,
-                    SlotActionType.PICKUP,
-                    new Int2ObjectArrayMap<>(),
-                    ItemStackHash.EMPTY
-            );
+        if (slot < 0 || slot >= handler.slots.size()) {
+            running = false;
+            return;
+        }
 
-            if (client.getNetworkHandler() != null) {
-                client.getNetworkHandler().sendPacket(packet);
-            }
+        ClickSlotC2SPacket packet = new ClickSlotC2SPacket(
+            handler.syncId,
+            handler.getRevision(),
+            (short) slot,
+            (byte) 0,
+            SlotActionType.PICKUP,
+            new Int2ObjectArrayMap<>(),
+            ItemStackHash.EMPTY
+        );
 
-            remaining--;
-            nextClickTime = now + delay;
-        });
+        if (client.getNetworkHandler() != null) {
+            client.getNetworkHandler().sendPacket(packet);
+        }
+
+        remaining--;
+        nextClickTime = now + delay;
     }
 
     public static void start(int s, int count, int d) {

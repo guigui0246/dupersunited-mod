@@ -1,7 +1,7 @@
 package com.vinzy.cataddons.features.screens.mainmenu.alerts;
 
 import com.vinzy.cataddons.MainClient;
-import com.vinzy.cataddons.features.ConfigManager;
+import com.vinzy.cataddons.SharedVariables;
 import com.vinzy.cataddons.features.ServerAlertConfig;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.gui.DrawContext;
@@ -137,7 +137,7 @@ public class HallOfShame {
 
     public static void prefetch() {
         if (System.currentTimeMillis() - lastFetched >= CACHE_TTL_MS) {
-            CompletableFuture.runAsync(HallOfShame::refreshIfStale);
+            CompletableFuture.runAsync(HallOfShame::refreshIfStale, SharedVariables.IO_EXECUTOR);
         }
     }
 

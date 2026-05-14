@@ -4,14 +4,17 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
 
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadLocalRandom;
 
 
 public class SharedVariables {
+    public static final Executor IO_EXECUTOR = Util.getIoWorkerExecutor().named("DupersUnited");
     public static final Path DIRECTORY = FabricLoader.getInstance().getGameDir().resolve("DupersUnited");
     public static final KeyBinding.Category CATEGORY = KeyBinding.Category.create(Identifier.of("cataddons", "cataddons"));
     public static Screen screenToOpen;

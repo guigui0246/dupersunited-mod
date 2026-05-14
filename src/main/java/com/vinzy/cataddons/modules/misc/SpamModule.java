@@ -11,6 +11,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class SpamModule extends Module {
 
@@ -20,6 +21,10 @@ public class SpamModule extends Module {
     private final IntSetting delay = register(new IntSetting("Delay (ms)", 1000, 50, 10000));
     private final BooleanSetting limited = register(new BooleanSetting("Limit", false));
     private final StringSetting count = register(new StringSetting("Count", "10"));
+    private final BooleanSetting bypass = register(new BooleanSetting("Bypass AntiSpam", false));
+    private final IntSetting suffixLen = register(new IntSetting("Suffix Length", 3, 1, 8));
+
+    private final Random random = new Random();
 
     private long lastSendTime = 0;
     private int sentCount = 0;
@@ -37,6 +42,7 @@ public class SpamModule extends Module {
         this.register(new BindSetting("Keybind", GLFW.GLFW_KEY_UNKNOWN).linkedTo(this));
 
         count.visible = () -> limited.getValue();
+        suffixLen.visible = () -> bypass.getValue();
     }
 
     @Override
@@ -69,11 +75,25 @@ public class SpamModule extends Module {
         if (active.isEmpty()) return;
 
         if (messageIndex >= active.size()) messageIndex = 0;
-        mc.player.networkHandler.sendChatMessage(active.get(messageIndex));
+
+        String msg = active.get(messageIndex);
+        if (bypass.getValue()) msg = msg + " " + randomSuffix();
+
+        mc.player.networkHandler.sendChatMessage(msg);
 
         messageIndex = (messageIndex + 1) % active.size();
         lastSendTime = now;
         sentCount++;
+    }
+
+    //anti-spam bypassert
+    private String randomSuffix() {
+        String chars = "abcdefghijklmnopqrstuvwxyz";
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < suffixLen.getValue(); i++) {
+            sb.append(chars.charAt(random.nextInt(chars.length())));
+        }
+        return sb.toString();
     }
 
     // returning only non empty message slots

@@ -12,13 +12,14 @@ import java.util.Set;
 public class ServerAlertConfig {
 
     private static final Path FILE = SharedVariables.DIRECTORY.resolve("whitelist-alerts.json");
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Set<String> dismissed = new ObjectOpenHashSet<>();
 
     public static void load() {
-        if (!Files.exists(FILE)) return;
-        try {
-            String raw = Files.readString(FILE);
-            JsonArray arr = JsonParser.parseString(raw).getAsJsonArray();
+        if (!Files.isRegularFile(FILE)) return;
+
+        try (Reader reader = Files.newBufferedReader(FILE)) {
+            JsonArray arr = GSON.fromJson(reader, JsonArray.class);
             for (JsonElement el : arr) {
                 dismissed.add(el.getAsString().toLowerCase().trim());
             }
@@ -30,9 +31,12 @@ public class ServerAlertConfig {
     public static void save() {
         try {
             Files.createDirectories(FILE.getParent());
-            JsonArray arr = new JsonArray();
-            dismissed.forEach(arr::add);
-            Files.writeString(FILE, new GsonBuilder().setPrettyPrinting().create().toJson(arr));
+
+            try (Writer writer = Files.newBufferedWriter(FILE)) {
+                JsonArray arr = new JsonArray();
+                dismissed.forEach(arr::add);
+                GSON.toJson(arr, writer);
+            }
         } catch (Exception e) {
             MainClient.LOGGER.error("Failed to save server alert config", e);
         }

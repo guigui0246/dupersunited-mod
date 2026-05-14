@@ -3,21 +3,20 @@ package com.vinzy.cataddons.features.proxies;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
+import com.vinzy.cataddons.MainClient;
+import com.vinzy.cataddons.SharedVariables;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.client.MinecraftClient;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 public class AccountProxyLinks {
-    private static final File FOLDER = new File(MinecraftClient.getInstance().runDirectory, "DupersUnited");
-    private static final File FILE = new File(FOLDER,"accountsproxies.json");
+    private static final Path FILE = SharedVariables.DIRECTORY.resolve("accountsproxies.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public static Map<String, String> links = new HashMap<>();
@@ -25,20 +24,27 @@ public class AccountProxyLinks {
     public static Set<String> favoritedAccounts = new ObjectOpenHashSet<>();
 
     public static void save() {
-        if (!FOLDER.exists()) FOLDER.mkdirs();
-        try (FileWriter writer = new FileWriter(FILE)) {
-            JsonObject root = new JsonObject();
-            root.add("links", GSON.toJsonTree(links));
-            root.add("bypassAccounts", GSON.toJsonTree(bypassAccounts));
-            root.add("favoritedAccounts", GSON.toJsonTree(favoritedAccounts));
-            GSON.toJson(root, writer);
-        } catch (Exception e) { e.printStackTrace(); }
+        try {
+            Files.createDirectories(FILE.getParent());
+
+            try (Writer writer = Files.newBufferedWriter(FILE)) {
+                JsonObject root = new JsonObject();
+                root.add("links", GSON.toJsonTree(links));
+                root.add("bypassAccounts", GSON.toJsonTree(bypassAccounts));
+                root.add("favoritedAccounts", GSON.toJsonTree(favoritedAccounts));
+
+                GSON.toJson(root, writer);
+            }
+        } catch (IOException e) {
+            MainClient.LOGGER.error("Failed to save account proxy links", e);
+        }
     }
 
     public static void load() {
-        if (!FILE.exists()) return;
-        try (FileReader reader = new FileReader(FILE)) {
-            JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
+        if (!Files.isRegularFile(FILE)) return;
+
+        try (Reader reader = Files.newBufferedReader(FILE)) {
+            JsonObject root = GSON.fromJson(reader, JsonObject.class);
             if (root.has("links")) {
                 Map<String, String> loaded = GSON.fromJson(root.get("links"), new TypeToken<Map<String, String>>(){}.getType());
                 if (loaded != null) links = loaded;
@@ -52,11 +58,13 @@ public class AccountProxyLinks {
                 if (loaded != null) favoritedAccounts = loaded;
             }
         } catch (Exception e) {
+            MainClient.LOGGER.error("Failed to load account proxy links", e);
         }
     }
 
     public static void link(String accountName, String proxyProfileName) {
         links.put(accountName, proxyProfileName);
+
         save();
     }
 

@@ -157,7 +157,7 @@ public class ConfigManager {
                 GSON.toJson(root, writer);
             }
         } catch (IOException e) {
-            MainClient.LOGGER.error("Failed to save config: " + e.getMessage());
+            MainClient.LOGGER.error("Failed to save config", e);
         }
     }
 
@@ -234,8 +234,7 @@ public class ConfigManager {
                                 bs.setKeyCode(el.getAsInt());
                             }
                         } catch (Exception e) {
-                            MainClient.LOGGER.error("Bad value for "
-                                + module.getName() + "." + s.getName() + ": " + e.getMessage());
+                            MainClient.LOGGER.error("Bad value for {}.{}: '{}'", module.getName(), s.getName(), el, e);
                         }
                     }
                 }
@@ -304,7 +303,7 @@ public class ConfigManager {
             }
 
         } catch (IOException e) {
-            MainClient.LOGGER.error("Failed to load config: " + e.getMessage());
+            MainClient.LOGGER.error("Failed to load config", e);
         }
     }
 }

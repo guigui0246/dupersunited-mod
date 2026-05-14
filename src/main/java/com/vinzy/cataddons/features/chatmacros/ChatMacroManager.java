@@ -2,6 +2,7 @@ package com.vinzy.cataddons.features.chatmacros;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import com.vinzy.cataddons.MainClient;
 import com.vinzy.cataddons.keybinds.Keybind;
 import com.vinzy.cataddons.keybinds.KeybindManager;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -118,7 +119,9 @@ public class ChatMacroManager {
         } catch (IOException e) {
             sendMessage(Text.empty()
                     .append(Text.literal("An error has occurred while trying to save chatmacros! ").formatted(Formatting.RED))
-                    .append("Error: " + e.getMessage()), true);
+                    .append(e.getMessage()), true);
+
+            MainClient.LOGGER.error("Error saving chatmacros", e);
         }
     }
 

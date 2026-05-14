@@ -66,7 +66,7 @@ public class SessionAPI {
                     && uuid.equals(session.getUuidOrNull());
 
         } catch (Exception e) {
-            MainClient.LOGGER.error("something went wrong with session api" + e.getMessage());
+            MainClient.LOGGER.error("something went wrong with session api", e);
             return false;
         }
     }

@@ -1,5 +1,6 @@
 package com.vinzy.cataddons.features;
 
+import com.vinzy.cataddons.MainClient;
 import com.vinzy.cataddons.commands.CommandCat;
 import com.vinzy.cataddons.mixin.accessor.EditBoxWidgetAccessor;
 import net.minecraft.client.gui.DrawContext;
@@ -49,6 +50,7 @@ public class NBTEditor extends Screen {
             initializeWidgets(nbt);
         } catch (Exception e) {
             CommandCat.sendMessage("Failed to load NBT: " + e.getMessage(), true);
+            MainClient.LOGGER.error("Failed to load NBT", e);
             this.close();
         }
     }
@@ -100,8 +102,10 @@ public class NBTEditor extends Screen {
             this.close();
         } catch (Exception e) {
             CommandCat.sendMessage(Text.empty()
-                .append(Text.literal("Failed to save! Error: ").formatted(Formatting.RED))
+                .append(Text.literal("Failed to save! ").formatted(Formatting.RED))
                 .append(e.getMessage()), true);
+
+            MainClient.LOGGER.error("Failed to save NBT", e);
         }
     }
 

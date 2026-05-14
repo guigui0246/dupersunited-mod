@@ -90,7 +90,7 @@ public class HallOfFame {
                 lastFetched = now;
             }
         } catch (Exception e) {
-            MainClient.LOGGER.error("HoF fetch failed: " + e.getMessage());
+            MainClient.LOGGER.error("HoF fetch failed", e);
         }
     }
 

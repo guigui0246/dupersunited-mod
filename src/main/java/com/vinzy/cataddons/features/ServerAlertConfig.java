@@ -23,7 +23,7 @@ public class ServerAlertConfig {
                 dismissed.add(el.getAsString().toLowerCase().trim());
             }
         } catch (Exception e) {
-            MainClient.LOGGER.error("Failed to load server alert config: " + e.getMessage());
+            MainClient.LOGGER.error("Failed to load server alert config", e);
         }
     }
 
@@ -34,7 +34,7 @@ public class ServerAlertConfig {
             dismissed.forEach(arr::add);
             Files.writeString(FILE, new GsonBuilder().setPrettyPrinting().create().toJson(arr));
         } catch (Exception e) {
-            MainClient.LOGGER.error("Failed to save server alert config: " + e.getMessage());
+            MainClient.LOGGER.error("Failed to save server alert config", e);
         }
     }
 

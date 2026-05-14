@@ -90,7 +90,7 @@ public class HallOfShame {
                 lastFetched = now;
             }
         } catch (Exception e) {
-            MainClient.LOGGER.error("HoS fetch failed: " + e.getMessage());
+            MainClient.LOGGER.error("HoS fetch failed", e);
         }
     }
 

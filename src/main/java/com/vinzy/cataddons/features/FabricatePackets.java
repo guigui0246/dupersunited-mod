@@ -61,7 +61,7 @@ public class FabricatePackets {
             UIManager.put("ComboBox.buttonHighlight", BG3);
             LOGGER.debug("Look and feel applied successfully");
         } catch (Exception e) {
-            LOGGER.debug("Failed to apply look and feel: {}", e.getMessage());
+            LOGGER.error("Failed to apply look and feel", e);
         }
     }
 

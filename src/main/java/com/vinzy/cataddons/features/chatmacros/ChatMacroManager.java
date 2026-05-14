@@ -5,12 +5,10 @@ import com.google.gson.reflect.TypeToken;
 import com.vinzy.cataddons.MainClient;
 import com.vinzy.cataddons.keybinds.Keybind;
 import com.vinzy.cataddons.keybinds.KeybindManager;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,21 +33,18 @@ public class ChatMacroManager {
     private record ScheduledMessage(String text, long sendAt) {}
 
     private static final Queue<ScheduledMessage> queue = new LinkedList<>();
-    private static boolean tickRegistered = false;
 
-    private static void ensureTickRegistered() {
-        if (tickRegistered) return;
-        tickRegistered = true;
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.player == null) return;
-            long now = System.currentTimeMillis();
-            while (!queue.isEmpty() && queue.peek().sendAt() <= now) {
-                String msg = queue.poll().text();
-                if (msg.startsWith("/")) client.player.networkHandler.sendChatCommand(msg.substring(1));
-                else
-                    client.player.networkHandler.sendChatMessage(msg);
-            }
-        });
+    public static void onTick() {
+        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+        if (player == null) return;
+
+        long now = System.currentTimeMillis();
+        while (!queue.isEmpty() && queue.peek().sendAt() <= now) {
+            String msg = queue.poll().text();
+            if (msg.startsWith("/")) player.networkHandler.sendChatCommand(msg.substring(1));
+            else
+                player.networkHandler.sendChatMessage(msg);
+        }
     }
 
     public static void addMacro(String name, List<MacroMessage> messages, int keyCode) {
@@ -126,7 +121,6 @@ public class ChatMacroManager {
     }
 
     public static void load() {
-        ensureTickRegistered();
         if (!Files.exists(getSaveFile())) return;
         try {
             String json = Files.readString(getSaveFile());

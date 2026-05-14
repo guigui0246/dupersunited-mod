@@ -4,6 +4,7 @@ import com.vinzy.cataddons.commands.subcommands.WaitCommand;
 import com.vinzy.cataddons.features.PayAllManager;
 import com.vinzy.cataddons.features.PluginScanner;
 import com.vinzy.cataddons.features.auth.AuthManager;
+import com.vinzy.cataddons.features.chatmacros.ChatMacroManager;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.text.Text;
 
@@ -37,6 +38,7 @@ public class TickEvent {
             PayAllManager.onTick();
             AuthManager.onTick();
             WaitCommand.onTick();
+            ChatMacroManager.onTick();
         });
     }
 }

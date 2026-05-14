@@ -2,6 +2,7 @@ package com.vinzy.cataddons.features;
 
 import com.google.gson.*;
 import com.vinzy.cataddons.MainClient;
+import com.vinzy.cataddons.SharedVariables;
 import com.vinzy.cataddons.features.screens.ClickGui;
 import com.vinzy.cataddons.features.screens.hud.*;
 import com.vinzy.cataddons.keybinds.Keybind;
@@ -13,23 +14,20 @@ import com.vinzy.cataddons.modules.render.NoRenderModule;
 import com.vinzy.cataddons.modules.settings.*;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.block.Block;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import org.joml.Vector2i;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 
 public class ConfigManager {
 
-    private static final File CONFIG_FILE = new File(
-        MinecraftClient.getInstance().runDirectory,
-        "DupersUnited/config.json"
-    );
+    private static final Path CONFIG_FILE = SharedVariables.DIRECTORY.resolve("config.json");
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
@@ -151,9 +149,9 @@ public class ConfigManager {
         }
 
         try {
-            CONFIG_FILE.getParentFile().mkdirs();
-            try (Writer writer = new OutputStreamWriter(
-                new FileOutputStream(CONFIG_FILE), StandardCharsets.UTF_8)) {
+            Files.createDirectories(CONFIG_FILE.getParent());
+
+            try (Writer writer = Files.newBufferedWriter(CONFIG_FILE)) {
                 GSON.toJson(root, writer);
             }
         } catch (IOException e) {
@@ -162,12 +160,10 @@ public class ConfigManager {
     }
 
     public static void load() {
-        if (!CONFIG_FILE.exists()) return;
+        if (!Files.isRegularFile(CONFIG_FILE)) return;
 
-        try (Reader reader = new InputStreamReader(
-            new FileInputStream(CONFIG_FILE), StandardCharsets.UTF_8)) {
-
-            JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
+        try (Reader reader = Files.newBufferedReader(CONFIG_FILE)) {
+            JsonObject root = GSON.fromJson(reader, JsonObject.class);
 
             if (root.has("firstLaunch")) {
                 firstLaunch = root.get("firstLaunch").getAsBoolean();

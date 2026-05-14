@@ -2,16 +2,17 @@ package com.vinzy.cataddons.features.proxies;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.minecraft.client.MinecraftClient;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import com.vinzy.cataddons.MainClient;
+import com.vinzy.cataddons.SharedVariables;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProxyConfigManager {
-    private static final File FOLDER = new File(MinecraftClient.getInstance().runDirectory, "DupersUnited");
-    private static final File FILE = new File(FOLDER,"proxies.json");
+    private static final Path FILE = SharedVariables.DIRECTORY.resolve("proxies.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public static boolean globalEnabled = false;
@@ -21,15 +22,21 @@ public class ProxyConfigManager {
     public static List<String> customAccountPaths = new ArrayList<>();
 
     public static void save() {
-        if (!FOLDER.exists()) FOLDER.mkdirs();
-        try (FileWriter writer = new FileWriter(FILE)) {
-            GSON.toJson(new ConfigData(globalEnabled, proxyWarningEnabled, activeProfileName, profiles, customAccountPaths), writer);
-        } catch (Exception e) { e.printStackTrace(); }
+        try {
+            Files.createDirectories(FILE.getParent());
+
+            try (Writer writer = Files.newBufferedWriter(FILE)) {
+                GSON.toJson(new ConfigData(globalEnabled, proxyWarningEnabled, activeProfileName, profiles, customAccountPaths), writer);
+            }
+        } catch (IOException e) {
+            MainClient.LOGGER.error("Error saving proxy configs", e);
+        }
     }
 
     public static void load() {
-        if (!FILE.exists()) return;
-        try (FileReader reader = new FileReader(FILE)) {
+        if (!Files.isRegularFile(FILE)) return;
+
+        try (Reader reader = Files.newBufferedReader(FILE)) {
             ConfigData data = GSON.fromJson(reader, ConfigData.class);
             if (data != null) {
                 globalEnabled = data.globalEnabled;
@@ -38,7 +45,9 @@ public class ProxyConfigManager {
                 profiles = data.profiles != null ? data.profiles : new ArrayList<>();
                 customAccountPaths = data.customAccountPaths != null ? data.customAccountPaths : new ArrayList<>();
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (IOException e) {
+            MainClient.LOGGER.error("Error loading proxy configs", e);
+        }
     }
 
     public static ProxyProfiles getActiveProfile() {

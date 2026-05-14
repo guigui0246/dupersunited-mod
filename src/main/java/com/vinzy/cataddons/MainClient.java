@@ -73,6 +73,7 @@ public class MainClient implements ModInitializer {
         MODULE_MANAGER.register(new ClickSlotModule());
         MODULE_MANAGER.register(new VanillaFlyModule());
         MODULE_MANAGER.register(new NoFallModule());
+        MODULE_MANAGER.register(new SpamModule());
 
         //enable by default
         MODULE_MANAGER.getModule(WatermarkModule.class).setEnabled(true);

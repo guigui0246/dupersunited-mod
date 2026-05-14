@@ -3,6 +3,7 @@ package com.vinzy.cataddons.features.screens.mainmenu.alerts;
 import com.vinzy.cataddons.MainClient;
 import com.vinzy.cataddons.features.ConfigManager;
 import com.vinzy.cataddons.features.ServerAlertConfig;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
@@ -18,7 +19,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -28,7 +28,7 @@ public class HallOfShame {
     // code for this is god awful but it does the job so who gaf
 
     private static final String LIST = "https://raw.githubusercontent.com/DupersUnited/hallofshame/refs/heads/main/notcoolman.json";
-    private static Set<String> shameSet = new HashSet<>();
+    private static Set<String> shameSet = new ObjectOpenHashSet<>();
     private static long lastFetched = 0L;
     private static final long CACHE_TTL_MS = 10 * 60 * 1000L;
 
@@ -95,7 +95,7 @@ public class HallOfShame {
     }
 
     private static Set<String> parse(BufferedReader reader) throws Exception {
-        Set<String> result = new HashSet<>();
+        Set<String> result = new ObjectOpenHashSet<>();
         StringBuilder sb = new StringBuilder();
         String line;
 

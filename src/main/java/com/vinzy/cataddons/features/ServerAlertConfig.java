@@ -3,16 +3,16 @@ package com.vinzy.cataddons.features;
 import com.vinzy.cataddons.MainClient;
 import com.google.gson.*;
 import com.vinzy.cataddons.SharedVariables;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 import java.io.*;
 import java.nio.file.*;
-import java.util.HashSet;
 import java.util.Set;
 
 public class ServerAlertConfig {
 
     private static final Path FILE = SharedVariables.DIRECTORY.resolve("whitelist-alerts.json");
-    private static Set<String> dismissed = new HashSet<>();
+    private static final Set<String> dismissed = new ObjectOpenHashSet<>();
 
     public static void load() {
         if (!Files.exists(FILE)) return;

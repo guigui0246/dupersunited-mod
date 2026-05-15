@@ -1,4 +1,4 @@
-//package com.vinzy.dupersunited.mixin.entity;
+//package wtf.dupers.dupersunited.mixin.entity;
 //
 //import net.fabricmc.api.EnvType;
 //import net.fabricmc.api.Environment;

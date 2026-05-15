@@ -1,4 +1,4 @@
-//package com.vinzy.dupersunited.mixin.screen;
+//package wtf.dupers.dupersunited.mixin.screen;
 //
 //import net.minecraft.client.gl.RenderPipelines;
 //import net.minecraft.client.gui.DrawContext;

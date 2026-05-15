@@ -1,0 +1,20 @@
+package wtf.dupers.dupersunited.modules.misc;
+
+import wtf.dupers.dupersunited.modules.Category;
+import wtf.dupers.dupersunited.modules.Module;
+import wtf.dupers.dupersunited.modules.settings.BindSetting;
+import net.minecraft.client.gui.hud.ChatHudLine;
+import net.minecraft.text.Text;
+import org.apache.commons.lang3.mutable.MutableInt;
+import org.lwjgl.glfw.GLFW;
+
+import java.util.ArrayList;
+
+public class ChatStackerModule extends Module {
+    public ChatStackerModule() {
+        super("ChatStacker", "Stacks multiple of the same chat into 1 line.", Category.misc);
+        this.register(new BindSetting("Keybind", GLFW.GLFW_KEY_UNKNOWN).linkedTo(this));
+    }
+
+    public record RepeatingMessage(Text originalMessage, ArrayList<ChatHudLine.Visible> instances, MutableInt count) {}
+}

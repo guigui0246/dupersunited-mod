@@ -1,0 +1,12 @@
+package wtf.dupers.dupersunited.modules.settings;
+
+
+public class BooleanSetting extends Setting<Boolean> {
+    public BooleanSetting(String name, boolean defaultValue) {
+        super(name, defaultValue);
+    }
+
+    public void toggle() {
+        setValue(!value);
+    }
+}

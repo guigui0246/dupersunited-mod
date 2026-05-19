@@ -43,8 +43,6 @@ public class MainClient implements ModInitializer {
 
         //SSID Login
         originalSession = SessionManager.getSession();
-        currentSession = originalSession;
-        overrideSession = true;
 
         //modules
         MODULE_MANAGER = new ModuleManager();

@@ -1,17 +1,26 @@
 package wtf.dupers.dupersunited.features.ssidLogin;
 
+import com.mojang.authlib.minecraft.UserApiService;
+import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.network.SocialInteractionsManager;
+import net.minecraft.client.resource.SplashTextResourceSupplier;
+import net.minecraft.client.session.ProfileKeys;
+import net.minecraft.client.session.report.AbuseReportContext;
+import net.minecraft.client.session.report.ReporterEnvironment;
+import net.minecraft.util.Util;
 import wtf.dupers.dupersunited.MainClient;
+import wtf.dupers.dupersunited.mixin.accessor.MinecraftClientAccessor;
 import wtf.dupers.dupersunited.modules.render.NickModule;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.session.Session;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class SessionManager {
     public static Session originalSession;
-    public static Session currentSession;
-    public static boolean overrideSession;
 
     public static Boolean isSessionValid = null;
     public static boolean hasValidationStarted;
@@ -73,8 +82,19 @@ public class SessionManager {
     }
 
     public static void setSession(Session session) {
-        currentSession = session;
         isSessionValid = null;
         hasValidationStarted = false;
+
+        MinecraftClientAccessor client = (MinecraftClientAccessor) MinecraftClient.getInstance();
+        client.dupersunited$setSession(session);
+        client.dupersunited$setGameProfileFuture(CompletableFuture.supplyAsync(() ->
+            MinecraftClient.getInstance().getApiServices().sessionService().fetchProfile(session.getUuidOrNull(), true),
+            Util.getDownloadWorkerExecutor()));
+        client.dupersunited$setSplashTextLoader(new SplashTextResourceSupplier(session));
+        UserApiService userApiService = new YggdrasilAuthenticationService(MinecraftClient.getInstance().getNetworkProxy()).createUserApiService(session.getAccessToken());
+        client.dupersunited$setUserApiService(userApiService);
+        client.dupersunited$setSocialInteractionsManager(new SocialInteractionsManager(MinecraftClient.getInstance(), userApiService));
+        client.dupersunited$setProfileKeys(ProfileKeys.create(userApiService, session, FabricLoader.getInstance().getGameDir()));
+        client.dupersunited$setAbuseReportContext(AbuseReportContext.create(ReporterEnvironment.ofIntegratedServer(), userApiService));
     }
 }

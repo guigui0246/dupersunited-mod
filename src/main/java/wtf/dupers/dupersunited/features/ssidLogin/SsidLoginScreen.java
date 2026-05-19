@@ -144,7 +144,7 @@ public class SsidLoginScreen extends Screen {
 
         this.addDrawableChild(backButton);
 
-        if (SessionManager.currentSession.equals(SessionManager.originalSession)) {
+        if (SessionManager.getSession().equals(SessionManager.originalSession)) {
             this.restoreButton.active = false;
         }
 

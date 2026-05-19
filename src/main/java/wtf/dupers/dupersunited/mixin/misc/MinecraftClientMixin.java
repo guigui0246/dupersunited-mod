@@ -1,15 +1,12 @@
 package wtf.dupers.dupersunited.mixin.misc;
 
 import wtf.dupers.dupersunited.MainClient;
-import wtf.dupers.dupersunited.features.ssidLogin.SessionManager;
 import wtf.dupers.dupersunited.modules.render.FreecamModule;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.session.Session;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(MinecraftClient.class)
 public class MinecraftClientMixin {
@@ -26,12 +23,5 @@ public class MinecraftClientMixin {
         mc.options.rightKey.setPressed(false);
         mc.options.jumpKey.setPressed(false);
         mc.options.sneakKey.setPressed(false);
-    }
-
-    @Inject(method = "getSession", at = @At("HEAD"), cancellable = true)
-    private void onGetSession(CallbackInfoReturnable<Session> cir) {
-        if (SessionManager.overrideSession) {
-            cir.setReturnValue(SessionManager.currentSession);
-        }
     }
 }

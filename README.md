@@ -1,4 +1,4 @@
-# DupersUnited Public Mod
+# DupersUnited Mod
 
 A Minecraft mod to help debug plugins and servers. This Mod does **NOT** give you dupes on Minecraft servers, just helps in finding them.
 
@@ -13,8 +13,8 @@ A Minecraft mod to help debug plugins and servers. This Mod does **NOT** give yo
 Clone the repository and navigate into it:
 
 ```bash
-git clone https://github.com/DupersUnited/dupersunited-public.git
-cd dupersunited-public
+git clone https://github.com/DupersUnited/dupersunited-mod.git
+cd dupersunited-mod
 ```
 
 Build the project:
@@ -73,5 +73,5 @@ To access the other modules in the mod, press your "K" key while ingame.
 
 <img width="1919" height="1008" alt="Screenshot 2026-04-29 204532" src="https://github.com/user-attachments/assets/01394a08-36f7-4cb9-b858-0a0e4ea21e62" />
 
-To access the commands run "/du help" 
+To access the commands run "/du help"
 <img width="566" height="338" alt="Screenshot 2026-04-29 205014" src="https://github.com/user-attachments/assets/d338eee3-fb0e-4051-89a7-2657a82e3817" />

@@ -1,0 +1,19 @@
+package wtf.dupers.dupersunited.modules.settings;
+
+
+import java.util.function.BooleanSupplier;
+
+public abstract class Setting<T> {
+    private final String name;
+    public BooleanSupplier visible = () -> true;
+    protected T value;
+
+    public Setting(String name, T defaultValue) {
+        this.name = name;
+        this.value = defaultValue;
+    }
+
+    public String getName() { return name; }
+    public T getValue() { return value; }
+    public void setValue(T value) { this.value = value; }
+}

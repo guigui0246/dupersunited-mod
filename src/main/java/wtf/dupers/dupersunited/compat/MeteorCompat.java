@@ -1,5 +1,6 @@
 package wtf.dupers.dupersunited.compat;
 
+import org.jetbrains.annotations.Nullable;
 import wtf.dupers.dupersunited.MainClient;
 import wtf.dupers.dupersunited.features.ssidLogin.AccountsScreen;
 import net.fabricmc.loader.api.FabricLoader;
@@ -30,9 +31,16 @@ public final class MeteorCompat {
             Method account_fetchInfo_Method = accountClass.getDeclaredMethod("fetchInfo");
             Method account_getUsername_Method = accountClass.getDeclaredMethod("getUsername");
 
-            Class<?> sessionAccountClass = Class.forName("meteordevelopment.meteorclient.systems.accounts.types.SessionAccount");
-            Field sessionAccount_accessToken_Field = sessionAccountClass.getDeclaredField("accessToken");
-            sessionAccount_accessToken_Field.setAccessible(true);
+            @Nullable Class<?> sessionAccountClass;
+            Field sessionAccount_accessToken_Field = null;
+            try {
+                sessionAccountClass = Class.forName("meteordevelopment.meteorclient.systems.accounts.types.SessionAccount");
+                sessionAccount_accessToken_Field = sessionAccountClass.getDeclaredField("accessToken");
+                sessionAccount_accessToken_Field.setAccessible(true);
+            } catch (ClassNotFoundException e) {
+                sessionAccountClass = null;
+            }
+
 
             Class<?> microsoftAccountClass = Class.forName("meteordevelopment.meteorclient.systems.accounts.types.MicrosoftAccount");
             Field microsoftAccount_token_Field = microsoftAccountClass.getDeclaredField("token");
@@ -42,7 +50,7 @@ public final class MeteorCompat {
 
             for (Object account : accounts) {
                 String token;
-                if (sessionAccountClass.isInstance(account)) {
+                if (sessionAccountClass != null && sessionAccountClass.isInstance(account)) {
                     token = (String) sessionAccount_accessToken_Field.get(account);
                 } else if (microsoftAccountClass.isInstance(account)) {
                     token = (String) microsoftAccount_token_Field.get(account);

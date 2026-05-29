@@ -1,4 +1,4 @@
-package wtf.dupers.dupersunited.modules;
+package wtf.dupers.dupersunited.api.module;
 
 public class Category {
     public static String exploit = "Exploit";

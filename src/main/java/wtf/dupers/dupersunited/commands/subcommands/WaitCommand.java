@@ -3,21 +3,24 @@ package wtf.dupers.dupersunited.commands.subcommands;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import wtf.dupers.dupersunited.commands.MainCommand;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import wtf.dupers.dupersunited.api.command.Command;
+import wtf.dupers.dupersunited.commands.MainCommand;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 
-public final class WaitCommand {
-    private WaitCommand() {}
+public final class WaitCommand extends Command {
+    public WaitCommand() {
+        super("wait", "Waits a given number of milliseconds (tick-aligned), then optionally runs a command or sends a chat message.");
+    }
 
     private record PendingWait(int ticksRemaining, String cmd) {}
 
@@ -55,49 +58,45 @@ public final class WaitCommand {
         }
     }
 
-    public static String getDescription() {
-        return "Waits a given number of milliseconds (tick-aligned), then optionally runs a command or sends a chat message.";
-    }
+    @Override
+    public void build(LiteralArgumentBuilder<FabricClientCommandSource> builder, CommandRegistryAccess registryAccess) {
+        builder.then(argument("ms", IntegerArgumentType.integer(1))
+            .executes(c -> {
+                int ms = IntegerArgumentType.getInteger(c, "ms");
+                int ticks = Math.max(1, ms / 50);
 
-    public static LiteralArgumentBuilder<FabricClientCommandSource> register() {
-        return literal("wait")
-            .then(argument("ms", IntegerArgumentType.integer(1))
+                MainCommand.sendMessage(
+                    Text.literal("Waiting ")
+                        .append(Text.literal(ms + "ms").formatted(Formatting.RED))
+                        .append(Text.literal(" (" + ticks + " ticks)...").formatted(Formatting.GREEN)),
+                    true
+                );
+
+                pending.add(new PendingWait(ticks, null));
+                return 1;
+            })
+
+            .then(argument("cmd", StringArgumentType.greedyString())
                 .executes(c -> {
                     int ms = IntegerArgumentType.getInteger(c, "ms");
+                    String cmd = StringArgumentType.getString(c, "cmd");
                     int ticks = Math.max(1, ms / 50);
+
+                    boolean isCommand = cmd.startsWith("/");
 
                     MainCommand.sendMessage(
                         Text.literal("Waiting ")
                             .append(Text.literal(ms + "ms").formatted(Formatting.RED))
-                            .append(Text.literal(" (" + ticks + " ticks)...").formatted(Formatting.GREEN)),
+                            .append(Text.literal(" " + ticks + " tick(s)...").formatted(Formatting.GREEN))
+                            .append(Text.literal(isCommand ? " then running: " : " then saying: ").formatted(Formatting.WHITE))
+                            .append(Text.literal(cmd).formatted(Formatting.AQUA)),
                         true
                     );
 
-                    pending.add(new PendingWait(ticks, null));
+                    pending.add(new PendingWait(ticks, cmd));
                     return 1;
                 })
-
-                .then(argument("cmd", StringArgumentType.greedyString())
-                    .executes(c -> {
-                        int ms = IntegerArgumentType.getInteger(c, "ms");
-                        String cmd = StringArgumentType.getString(c, "cmd");
-                        int ticks = Math.max(1, ms / 50);
-
-                        boolean isCommand = cmd.startsWith("/");
-
-                        MainCommand.sendMessage(
-                            Text.literal("Waiting ")
-                                .append(Text.literal(ms + "ms").formatted(Formatting.RED))
-                                .append(Text.literal(" " + ticks + " tick(s)...").formatted(Formatting.GREEN))
-                                .append(Text.literal(isCommand ? " then running: " : " then saying: ").formatted(Formatting.WHITE))
-                                .append(Text.literal(cmd).formatted(Formatting.AQUA)),
-                            true
-                        );
-
-                        pending.add(new PendingWait(ticks, cmd));
-                        return 1;
-                    })
-                )
-            );
+            )
+        );
     }
 }

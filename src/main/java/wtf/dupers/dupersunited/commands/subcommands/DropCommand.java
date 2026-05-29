@@ -2,26 +2,25 @@ package wtf.dupers.dupersunited.commands.subcommands;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import wtf.dupers.dupersunited.commands.MainCommand;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import wtf.dupers.dupersunited.api.command.Command;
+import wtf.dupers.dupersunited.commands.MainCommand;
 
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 
-public final class DropCommand {
-    private DropCommand() {}
-
-    public static String getDescription() {
-        return "Drops the item in a specific inventory slot, or the currently held item if no slot is given.";
+public final class DropCommand extends Command {
+    public DropCommand() {
+        super("drop", "Drops the item in a specific inventory slot, or the currently held item if no slot is given.");
     }
 
-    public static LiteralArgumentBuilder<FabricClientCommandSource> register() {
-        return literal("drop")
-            .executes(c -> {
+    @Override
+    public void build(LiteralArgumentBuilder<FabricClientCommandSource> builder, CommandRegistryAccess registryAccess) {
+        builder.executes(c -> {
                 MinecraftClient client = MinecraftClient.getInstance();
                 if (client.player == null || client.interactionManager == null) return 0;
 

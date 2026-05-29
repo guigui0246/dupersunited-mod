@@ -1,9 +1,9 @@
 package wtf.dupers.dupersunited.modules.render;
 
-import wtf.dupers.dupersunited.modules.Category;
-import wtf.dupers.dupersunited.modules.Module;
-import wtf.dupers.dupersunited.modules.settings.BindSetting;
-import wtf.dupers.dupersunited.modules.settings.FloatSetting;
+import wtf.dupers.dupersunited.api.module.Category;
+import wtf.dupers.dupersunited.api.module.Module;
+import wtf.dupers.dupersunited.api.module.settings.BindSetting;
+import wtf.dupers.dupersunited.api.module.settings.FloatSetting;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.util.math.MathHelper;

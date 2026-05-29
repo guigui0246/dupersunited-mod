@@ -1,4 +1,4 @@
-package wtf.dupers.dupersunited.modules.settings;
+package wtf.dupers.dupersunited.api.module.settings;
 
 public class FloatSetting extends Setting<Float> {
     private final float min, max;

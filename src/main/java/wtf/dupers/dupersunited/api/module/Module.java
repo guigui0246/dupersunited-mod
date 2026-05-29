@@ -1,7 +1,7 @@
-package wtf.dupers.dupersunited.modules;
+package wtf.dupers.dupersunited.api.module;
 
 import wtf.dupers.dupersunited.commands.MainCommand;
-import wtf.dupers.dupersunited.modules.settings.Setting;
+import wtf.dupers.dupersunited.api.module.settings.Setting;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.network.packet.Packet;
@@ -12,12 +12,12 @@ import java.util.Collections;
 import java.util.List;
 
 public class Module {
-
     private final String name;
     private final String category;
     private final String description;
     private boolean enabled;
     private final List<Setting<?>> settings = new ArrayList<>();
+    public String namespace;
 
     public Module(String name, String description, String category) {
         this.name = name;

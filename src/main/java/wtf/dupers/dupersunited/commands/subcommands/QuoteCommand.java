@@ -1,27 +1,25 @@
 package wtf.dupers.dupersunited.commands.subcommands;
 
-import static wtf.dupers.dupersunited.SharedVariables.randomQuote;
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
-
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.command.CommandRegistryAccess;
+import wtf.dupers.dupersunited.api.command.Command;
 
-public final class QuoteCommand {
-    private QuoteCommand() {}
+import static wtf.dupers.dupersunited.SharedVariables.randomQuote;
 
-    public static String getDescription() {
-        return "Posts a random quote";
+public final class QuoteCommand extends Command {
+    public QuoteCommand() {
+        super("quote", "Posts a random quote");
     }
 
-    public static LiteralArgumentBuilder<FabricClientCommandSource> register() {
-        return literal("quote")
-                .executes(c -> {
-                    if (MinecraftClient.getInstance().player != null) {
-                        MinecraftClient.getInstance().player.networkHandler.sendChatMessage(randomQuote());
-                    }
-                    return 1;
-                });
+    @Override
+    public void build(LiteralArgumentBuilder<FabricClientCommandSource> builder, CommandRegistryAccess registryAccess) {
+        builder.executes(c -> {
+            if (MinecraftClient.getInstance().player != null) {
+                MinecraftClient.getInstance().player.networkHandler.sendChatMessage(randomQuote());
+            }
+            return 1;
+        });
     }
 }

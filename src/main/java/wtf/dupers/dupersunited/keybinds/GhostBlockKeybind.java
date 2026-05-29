@@ -1,5 +1,6 @@
 package wtf.dupers.dupersunited.keybinds;
 
+import wtf.dupers.dupersunited.api.keybind.Keybind;
 import wtf.dupers.dupersunited.features.GhostBlock;
 import net.minecraft.client.MinecraftClient;
 import org.lwjgl.glfw.GLFW;

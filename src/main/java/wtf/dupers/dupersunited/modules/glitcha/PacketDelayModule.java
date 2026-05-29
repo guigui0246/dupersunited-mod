@@ -2,10 +2,10 @@ package wtf.dupers.dupersunited.modules.glitcha;
 
 import wtf.dupers.dupersunited.features.PacketPauseManager;
 import wtf.dupers.dupersunited.features.screens.PacketDelayScreen;
-import wtf.dupers.dupersunited.modules.Category;
-import wtf.dupers.dupersunited.modules.Module;
-import wtf.dupers.dupersunited.modules.settings.BindSetting;
-import wtf.dupers.dupersunited.modules.settings.BooleanSetting;
+import wtf.dupers.dupersunited.api.module.Category;
+import wtf.dupers.dupersunited.api.module.Module;
+import wtf.dupers.dupersunited.api.module.settings.BindSetting;
+import wtf.dupers.dupersunited.api.module.settings.BooleanSetting;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.network.packet.Packet;

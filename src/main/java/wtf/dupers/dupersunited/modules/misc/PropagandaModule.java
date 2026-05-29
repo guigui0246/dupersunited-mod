@@ -1,8 +1,8 @@
 package wtf.dupers.dupersunited.modules.misc;
 
 import wtf.dupers.dupersunited.MainClient;
-import wtf.dupers.dupersunited.modules.Module;
-import wtf.dupers.dupersunited.modules.settings.BindSetting;
+import wtf.dupers.dupersunited.api.module.Module;
+import wtf.dupers.dupersunited.api.module.settings.BindSetting;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;

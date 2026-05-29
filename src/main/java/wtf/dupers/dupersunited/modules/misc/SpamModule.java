@@ -1,11 +1,11 @@
 package wtf.dupers.dupersunited.modules.misc;
 
-import wtf.dupers.dupersunited.modules.Category;
-import wtf.dupers.dupersunited.modules.Module;
-import wtf.dupers.dupersunited.modules.settings.BindSetting;
-import wtf.dupers.dupersunited.modules.settings.BooleanSetting;
-import wtf.dupers.dupersunited.modules.settings.IntSetting;
-import wtf.dupers.dupersunited.modules.settings.StringSetting;
+import wtf.dupers.dupersunited.api.module.Category;
+import wtf.dupers.dupersunited.api.module.Module;
+import wtf.dupers.dupersunited.api.module.settings.BindSetting;
+import wtf.dupers.dupersunited.api.module.settings.BooleanSetting;
+import wtf.dupers.dupersunited.api.module.settings.IntSetting;
+import wtf.dupers.dupersunited.api.module.settings.StringSetting;
 import net.minecraft.client.MinecraftClient;
 import org.lwjgl.glfw.GLFW;
 

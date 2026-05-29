@@ -1,7 +1,7 @@
 package wtf.dupers.dupersunited.features.screens;
 
 import wtf.dupers.dupersunited.modules.glitcha.PacketDelayModule;
-import wtf.dupers.dupersunited.modules.settings.BooleanSetting;
+import wtf.dupers.dupersunited.api.module.settings.BooleanSetting;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;

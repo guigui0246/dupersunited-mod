@@ -2,14 +2,18 @@ package wtf.dupers.dupersunited.commands;
 
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import wtf.dupers.dupersunited.SharedVariables;
-import wtf.dupers.dupersunited.commands.subcommands.*;
+import wtf.dupers.dupersunited.api.command.Command;
 import wtf.dupers.dupersunited.features.screens.ClickGui;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+
+import java.util.Map;
 
 public final class MainCommand {
     private static final Text FEEDBACK_PREFIX = Text.empty()
@@ -34,35 +38,21 @@ public final class MainCommand {
         }
     }
 
-    public static void register() {
+    public static void register(Map<String, Command> commands) {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-            dispatcher.register(
-                    literal("du")
-                            .executes(context -> {
-                                SharedVariables.screenToOpen = new ClickGui(MinecraftClient.getInstance().currentScreen);
-                                sendMessage("Opening ClickGUI!", true);
-                                return 1;
-                            })
-                            .then(RestoreGhostsCommand.register())
-                            .then(SetHandCommand.register(registryAccess))
-                            .then(ToggleCommand.register())
-                            .then(NbtCommand.register())
-                            .then(ModuleCommand.register())
-                            .then(ReloadConfigCommand.register())
-                            .then(PluginsCommand.register())
-                            .then(QuoteCommand.register())
-                            .then(ReplaceBlockCommand.register(registryAccess))
-                            .then(NewCommandsCommand.register())
-                            .then(KeybindCommand.register())
-                            .then(PayAllCommand.register())
-                            .then(DupeCommand.register())
-                            .then(ClickSlotCommand.register())
-                            .then(HelpCommand.register())
-                            .then(ForceOpCommand.register())
-                            .then(DropCommand.register())
-                            .then(WaitCommand.register())
-                            .then(KickCommand.register())
-            );
+            LiteralArgumentBuilder<FabricClientCommandSource> root = literal("du").executes(ctx -> {
+                SharedVariables.screenToOpen = new ClickGui(MinecraftClient.getInstance().currentScreen);
+                sendMessage("Opening ClickGUI!", true);
+                return 1;
+            });
+
+            commands.forEach((subcommand, command) -> {
+                LiteralArgumentBuilder<FabricClientCommandSource> builder = literal(subcommand);
+                command.build(builder, registryAccess);
+                root.then(builder);
+            });
+
+            dispatcher.register(root);
         });
     }
 }

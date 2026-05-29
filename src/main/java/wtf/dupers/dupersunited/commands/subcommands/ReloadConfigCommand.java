@@ -1,25 +1,23 @@
 package wtf.dupers.dupersunited.commands.subcommands;
 
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
-
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.command.CommandRegistryAccess;
+import wtf.dupers.dupersunited.api.command.Command;
 import wtf.dupers.dupersunited.commands.MainCommand;
 import wtf.dupers.dupersunited.features.ConfigManager;
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 
-public final class ReloadConfigCommand {
-    private ReloadConfigCommand() {}
-
-    public static String getDescription() {
-        return "Reloads your config";
+public final class ReloadConfigCommand extends Command {
+    public ReloadConfigCommand() {
+        super("reload-config", "Reloads your config");
     }
 
-    public static LiteralArgumentBuilder<FabricClientCommandSource> register() {
-        return literal("reload-config")
-                .executes(c -> {
-                    ConfigManager.load().join();
-                    MainCommand.sendMessage("Reloaded config.", true);
-                    return 1;
-                });
+    @Override
+    public void build(LiteralArgumentBuilder<FabricClientCommandSource> builder, CommandRegistryAccess registryAccess) {
+        builder.executes(c -> {
+            ConfigManager.load().join();
+            MainCommand.sendMessage("Reloaded config.", true);
+            return 1;
+        });
     }
 }

@@ -1,4 +1,4 @@
-package wtf.dupers.dupersunited.modules.settings;
+package wtf.dupers.dupersunited.api.module.settings;
 
 public class StringSetting extends Setting<String> {
 

@@ -8,34 +8,34 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
-import wtf.dupers.dupersunited.MainClient;
-import wtf.dupers.dupersunited.SharedVariables;
-import wtf.dupers.dupersunited.commands.MainCommand;
 import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.network.ClientCommandSource;
+import net.minecraft.command.CommandRegistryAccess;
+import wtf.dupers.dupersunited.MainClient;
+import wtf.dupers.dupersunited.SharedVariables;
+import wtf.dupers.dupersunited.api.command.Command;
+import wtf.dupers.dupersunited.commands.MainCommand;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.SortedSet;
 
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.*;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
 
-public final class NewCommandsCommand {
+public final class NewCommandsCommand extends Command {
     private static final SimpleCommandExceptionType COULD_NOT_DUMP = new SimpleCommandExceptionType(new LiteralMessage("Could not dump commands, view logs for details."));
 
-    private NewCommandsCommand() {}
-
-    public static String getDescription() {
-        return "Scans all server commands and dumps it into /DupersUnited/commands-dump.txt";
+    public NewCommandsCommand() {
+        super("new-commands", "Scans all server commands and dumps it into /DupersUnited/commands-dump.txt");
     }
 
     public static final SortedSet<String> commandList = new ObjectRBTreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
-    public static LiteralArgumentBuilder<FabricClientCommandSource> register() {
-        return literal("new-commands")
-            .executes(ctx -> executeDump(ctx, "commands-dump"))
+    @Override
+    public void build(LiteralArgumentBuilder<FabricClientCommandSource> builder, CommandRegistryAccess registryAccess) {
+        builder.executes(ctx -> executeDump(ctx, "commands-dump"))
             .then(argument("filename", StringArgumentType.greedyString())
                 .executes(ctx -> executeDump(ctx, StringArgumentType.getString(ctx, "filename"))));
     }

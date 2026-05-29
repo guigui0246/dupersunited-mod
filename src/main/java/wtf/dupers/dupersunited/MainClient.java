@@ -1,6 +1,13 @@
 package wtf.dupers.dupersunited;
 
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.entrypoint.EntrypointContainer;
+import org.jetbrains.annotations.Nullable;
+import wtf.dupers.dupersunited.api.DupersUnitedAddon;
+import wtf.dupers.dupersunited.api.command.Command;
+import wtf.dupers.dupersunited.api.module.Module;
 import wtf.dupers.dupersunited.commands.MainCommand;
+import wtf.dupers.dupersunited.commands.subcommands.*;
 import wtf.dupers.dupersunited.events.GuiEvent;
 import wtf.dupers.dupersunited.events.TickEvent;
 import wtf.dupers.dupersunited.events.WorldEvent;
@@ -28,6 +35,10 @@ import wtf.dupers.dupersunited.modules.ModuleManager;
 import wtf.dupers.dupersunited.modules.exploit.AnySignModule;
 import wtf.dupers.dupersunited.modules.exploit.BookBotModule;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import static wtf.dupers.dupersunited.features.ssidLogin.SessionManager.*;
@@ -36,6 +47,7 @@ public class MainClient implements ModInitializer {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("DupersUnited");
     public static ModuleManager MODULE_MANAGER;
+    private static Map<String, Command> COMMANDS;
 
     @Override
     public void onInitialize() {
@@ -44,42 +56,83 @@ public class MainClient implements ModInitializer {
         //SSID Login
         originalSession = SessionManager.getSession();
 
-        //modules
-        MODULE_MANAGER = new ModuleManager();
-        MODULE_MANAGER.register(new EspModule());
-        MODULE_MANAGER.register(new FullBrightModule());
-        MODULE_MANAGER.register(new AutoSprintModule());
-        MODULE_MANAGER.register(new PacketLoggerModule());
-        MODULE_MANAGER.register(new WatermarkModule());
-        MODULE_MANAGER.register(new HidePlayersModule());
-        MODULE_MANAGER.register(new AnySignModule());
-        MODULE_MANAGER.register(new NickModule());
-        MODULE_MANAGER.register(new GuiUtilsModule());
-        MODULE_MANAGER.register(new TpsCounterModule());
-        MODULE_MANAGER.register(new FreeLookModule());
-        MODULE_MANAGER.register(new FreecamModule());
-        MODULE_MANAGER.register(new WarnUnsafeModule());
-        MODULE_MANAGER.register(new HudModule());
-        MODULE_MANAGER.register(new BookBotModule());
-        MODULE_MANAGER.register(new PropagandaModule());
-        MODULE_MANAGER.register(new PacketDelayModule());
-        MODULE_MANAGER.register(new PayAllSettingsModule());
-        MODULE_MANAGER.register(new InvDropModule());
-        MODULE_MANAGER.register(new BlockEspModule());
-        MODULE_MANAGER.register(new NoRenderModule());
-        MODULE_MANAGER.register(new NoTextureRotationsModule());
-        MODULE_MANAGER.register(new BetterTabModule());
-        MODULE_MANAGER.register(new ChatStackerModule());
-        MODULE_MANAGER.register(new ClickSlotModule());
-        MODULE_MANAGER.register(new VanillaFlyModule());
-        MODULE_MANAGER.register(new NoFallModule());
-        MODULE_MANAGER.register(new SpamModule());
+        //registry
+        DupersUnitedRegistryImpl registry = new DupersUnitedRegistryImpl();
+        registry.namespace = "dupersunited";
 
-        //enable by default
-        MODULE_MANAGER.getModule(WatermarkModule.class).setEnabled(true);
-        MODULE_MANAGER.getModule(GuiUtilsModule.class).setEnabled(true);
-        MODULE_MANAGER.getModule(TpsCounterModule.class).setEnabled(true);
-        MODULE_MANAGER.getModule(WarnUnsafeModule.class).setEnabled(true);
+        registry.registerModules(
+            new EspModule(),
+            new FullBrightModule(),
+            new AutoSprintModule(),
+            new PacketLoggerModule(),
+            new WatermarkModule(),
+            new HidePlayersModule(),
+            new AnySignModule(),
+            new NickModule(),
+            new GuiUtilsModule(),
+            new TpsCounterModule(),
+            new FreeLookModule(),
+            new FreecamModule(),
+            new WarnUnsafeModule(),
+            new HudModule(),
+            new BookBotModule(),
+            new PropagandaModule(),
+            new PacketDelayModule(),
+            new PayAllSettingsModule(),
+            new InvDropModule(),
+            new BlockEspModule(),
+            new NoRenderModule(),
+            new NoTextureRotationsModule(),
+            new BetterTabModule(),
+            new ChatStackerModule(),
+            new ClickSlotModule(),
+            new VanillaFlyModule(),
+            new NoFallModule(),
+            new SpamModule()
+        );
+
+        registry.registerCommands(
+            new ClickSlotCommand(),
+            new DropCommand(),
+            new DupeCommand(),
+            new ForceOpCommand(),
+            new HelpCommand(),
+            new KeybindCommand(),
+            new KickCommand(),
+            new ModuleCommand(),
+            new NbtCommand(),
+            new NewCommandsCommand(),
+            new PayAllCommand(),
+            new PluginsCommand(),
+            new QuoteCommand(),
+            new ReloadConfigCommand(),
+            new ReplaceBlockCommand(),
+            new RestoreGhostsCommand(),
+            new SetHandCommand(),
+            new ToggleCommand(),
+            new WaitCommand()
+        );
+
+        registry.registerKeybinds(
+            new GhostBlockKeybind(),
+            JoinServerInviteKeybind.INSTANCE,
+            new PacketPauseKeybind(),
+            new RestoreGuiKeybind(),
+            new RevertGhostBlockKeybind(),
+            new SaveGuiKeybind()
+        );
+
+        // addon initialization
+        var addonContainers = FabricLoader.getInstance().getEntrypointContainers("dupersunited-addon", DupersUnitedAddon.class);
+        for (EntrypointContainer<DupersUnitedAddon> addonContainer : addonContainers) {
+            registry.namespace = addonContainer.getProvider().getMetadata().getId();
+            addonContainer.getEntrypoint().initialize(registry);
+        }
+
+        // apply registry
+        MODULE_MANAGER = new ModuleManager(registry.modules);
+        MainCommand.register(COMMANDS = Collections.unmodifiableMap(registry.commands));
+        registry.keybinds.forEach(KeybindManager::registerKeybind);
 
         //config
         CompletableFuture<Void> proxyConfigTask = CompletableFuture.allOf(
@@ -101,8 +154,6 @@ public class MainClient implements ModInitializer {
                 ProxyConfigManager.save();
                 //LOGGER.info("No proxy linked for launch account '{}', disabling proxy!", launchUsername); bamgangnbang
             }
-
-            MainClient.LOGGER.info("[Session proxies] Composed");
         });
 
         CompletableFuture<Void> configLoadTask = CompletableFuture.allOf(
@@ -130,17 +181,10 @@ public class MainClient implements ModInitializer {
 
         //keybinds
         ClickGuiKeybind.register();
-        KeybindManager.registerKeybind(new RestoreGuiKeybind());
-        KeybindManager.registerKeybind(new RevertGhostBlockKeybind());
-        KeybindManager.registerKeybind(new SaveGuiKeybind());
-        KeybindManager.registerKeybind(new PacketPauseKeybind());
-        KeybindManager.registerKeybind(new GhostBlockKeybind());
-        KeybindManager.registerKeybind(JoinServerInviteKeybind.INSTANCE);
 
         //other
         HudOverlay.init();
         AuthManager.init();
-        MainCommand.register();
 
         // first launch shizz
         ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
@@ -157,5 +201,40 @@ public class MainClient implements ModInitializer {
         try {
             configLoadTask.join();
         } catch (Exception ignored) {}
+    }
+
+    public static Collection<Module> getModules() {
+        return MODULE_MANAGER.modules();
+    }
+
+    @Nullable
+    public static <T extends Module> T getModule(Class<T> moduleClass) {
+        return MODULE_MANAGER.getModule(moduleClass);
+    }
+
+    @Nullable
+    public static Module getModule(String moduleName) {
+        return MODULE_MANAGER.getModuleByName(moduleName);
+    }
+
+    public static Collection<Command> getCommands() {
+        return COMMANDS.values();
+    }
+
+    @Nullable
+    public static <T extends Command> T getCommand(Class<T> commandClass) {
+        return COMMANDS.values().stream()
+            .filter(commandClass::isInstance)
+            .map(commandClass::cast)
+            .findFirst().orElse(null);
+    }
+
+    @Nullable
+    public static Command getCommand(String commandName) {
+        // use values first because map keys are unstable
+        return COMMANDS.values().stream()
+            .filter(command -> Objects.equals(commandName, command.command))
+            .findFirst()
+            .orElseGet(() -> COMMANDS.getOrDefault(commandName, null));
     }
 }

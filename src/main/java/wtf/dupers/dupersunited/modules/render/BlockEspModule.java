@@ -2,12 +2,12 @@ package wtf.dupers.dupersunited.modules.render;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.DepthTestFunction;
-import wtf.dupers.dupersunited.modules.Category;
-import wtf.dupers.dupersunited.modules.Module;
+import wtf.dupers.dupersunited.api.module.Category;
+import wtf.dupers.dupersunited.api.module.Module;
 import wtf.dupers.dupersunited.features.screens.BlockEspScreen;
-import wtf.dupers.dupersunited.modules.settings.BindSetting;
-import wtf.dupers.dupersunited.modules.settings.ButtonSetting;
-import wtf.dupers.dupersunited.modules.settings.IntSetting;
+import wtf.dupers.dupersunited.api.module.settings.BindSetting;
+import wtf.dupers.dupersunited.api.module.settings.ButtonSetting;
+import wtf.dupers.dupersunited.api.module.settings.IntSetting;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;

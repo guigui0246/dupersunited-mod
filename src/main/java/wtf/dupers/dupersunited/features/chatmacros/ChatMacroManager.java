@@ -3,7 +3,7 @@ package wtf.dupers.dupersunited.features.chatmacros;
 import com.google.gson.reflect.TypeToken;
 import wtf.dupers.dupersunited.SharedVariables;
 import wtf.dupers.dupersunited.features.AsyncConfigs;
-import wtf.dupers.dupersunited.keybinds.Keybind;
+import wtf.dupers.dupersunited.api.keybind.Keybind;
 import wtf.dupers.dupersunited.keybinds.KeybindManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;

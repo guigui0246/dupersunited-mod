@@ -1,27 +1,27 @@
 package wtf.dupers.dupersunited.commands.subcommands;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import wtf.dupers.dupersunited.commands.MainCommand;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.crash.CrashReport;
+import wtf.dupers.dupersunited.api.command.Command;
+import wtf.dupers.dupersunited.commands.MainCommand;
 
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 
-public final class KickCommand {
-    private KickCommand() {}
-
-    public static String getDescription() {
-        return "Disconnects you from the server using various methods.";
+public final class KickCommand extends Command {
+    public KickCommand() {
+        super("kick", "Disconnects you from the server using various methods.");
     }
 
-    public static LiteralArgumentBuilder<FabricClientCommandSource> register() {
-        return literal("kick")
-            .then(literal("disconnect")
+    @Override
+    public void build(LiteralArgumentBuilder<FabricClientCommandSource> builder, CommandRegistryAccess registryAccess) {
+        builder.then(literal("disconnect")
                 .executes(c -> {
                     MinecraftClient client = MinecraftClient.getInstance();
                     if (client.getNetworkHandler() == null) return 0;

@@ -1,57 +1,56 @@
 package wtf.dupers.dupersunited.commands.subcommands;
 
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
-
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import wtf.dupers.dupersunited.commands.MainCommand;
-import wtf.dupers.dupersunited.MainClient;
-import wtf.dupers.dupersunited.modules.Module;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.CommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import wtf.dupers.dupersunited.MainClient;
+import wtf.dupers.dupersunited.api.command.Command;
+import wtf.dupers.dupersunited.api.module.Module;
+import wtf.dupers.dupersunited.commands.MainCommand;
 
-public final class ToggleCommand {
-    private ToggleCommand() {}
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
 
-    public static String getDescription() {
-        return "Toggles any module";
+public final class ToggleCommand extends Command {
+    public ToggleCommand() {
+        super("toggle", "Toggles any module");
     }
 
-    public static LiteralArgumentBuilder<FabricClientCommandSource> register() {
-        return literal("toggle")
-                .then(argument("module", StringArgumentType.word())
-                        .suggests((context, builder) ->
-                            CommandSource.suggestMatching(MainClient.MODULE_MANAGER.getModules().stream().map(Module::getName), builder))
-                        .executes(context -> {
-                            String moduleName = StringArgumentType.getString(context, "module");
-                            Module module = MainClient.MODULE_MANAGER.getModuleByName(moduleName);
+    @Override
+    public void build(LiteralArgumentBuilder<FabricClientCommandSource> builder, CommandRegistryAccess registryAccess) {
+        builder.then(argument("module", StringArgumentType.word())
+            .suggests((context, suggestions) ->
+                CommandSource.suggestMatching(MainClient.MODULE_MANAGER.modules().stream().map(Module::getName), suggestions))
+            .executes(context -> {
+                String moduleName = StringArgumentType.getString(context, "module");
+                Module module = MainClient.MODULE_MANAGER.getModuleByName(moduleName);
 
-                            if (module == null) {
-                                MainCommand.sendMessage(
-                                    Text.literal("Module not found.").formatted(Formatting.RED),
-                                    true
-                                );
+                if (module == null) {
+                    MainCommand.sendMessage(
+                        Text.literal("Module not found.").formatted(Formatting.RED),
+                        true
+                    );
 
-                                return 0;
-                            }
+                    return 0;
+                }
 
-                            module.toggle();
+                module.toggle();
 
-                            Text status = module.isEnabled()
-                                ? Text.literal("enabled").formatted(Formatting.GREEN)
-                                : Text.literal("disabled").formatted(Formatting.RED);
+                Text status = module.isEnabled()
+                    ? Text.literal("enabled").formatted(Formatting.GREEN)
+                    : Text.literal("disabled").formatted(Formatting.RED);
 
-                            MainCommand.sendMessage(Text.empty()
-                                .append(Text.literal(moduleName).formatted(Formatting.AQUA))
-                                .append(" is now ")
-                                .append(status)
-                                .append("."), true);
+                MainCommand.sendMessage(Text.empty()
+                    .append(Text.literal(moduleName).formatted(Formatting.AQUA))
+                    .append(" is now ")
+                    .append(status)
+                    .append("."), true);
 
-                            return 1;
-                        })
-                );
+                return 1;
+            })
+        );
     }
 }

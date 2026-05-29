@@ -4,23 +4,21 @@ import com.google.gson.*;
 import wtf.dupers.dupersunited.MainClient;
 import wtf.dupers.dupersunited.SharedVariables;
 import wtf.dupers.dupersunited.features.screens.ClickGui;
-import wtf.dupers.dupersunited.features.screens.hud.*;
 import wtf.dupers.dupersunited.features.screens.hud.HudEditorScreen;
 import wtf.dupers.dupersunited.features.screens.hud.HudElement;
-import wtf.dupers.dupersunited.keybinds.Keybind;
+import wtf.dupers.dupersunited.api.keybind.Keybind;
 import wtf.dupers.dupersunited.keybinds.KeybindManager;
-import wtf.dupers.dupersunited.modules.Module;
+import wtf.dupers.dupersunited.api.module.Module;
 import wtf.dupers.dupersunited.modules.render.BlockEspModule;
 import wtf.dupers.dupersunited.modules.render.EspModule;
 import wtf.dupers.dupersunited.modules.render.NoRenderModule;
-import wtf.dupers.dupersunited.modules.settings.*;
+import wtf.dupers.dupersunited.api.module.settings.*;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityType;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import org.joml.Vector2i;
-import wtf.dupers.dupersunited.modules.settings.*;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -79,7 +77,7 @@ public class ConfigManager {
         }
         root.add("hud", hudObj);
 
-        for (Module module : MainClient.MODULE_MANAGER.getModules()) {
+        for (Module module : MainClient.MODULE_MANAGER.modules()) {
             JsonObject modObj = new JsonObject();
 
             modObj.addProperty("keybind", module.getKeybind());
@@ -108,7 +106,7 @@ public class ConfigManager {
 
         JsonObject keybindsObj = new JsonObject();
         for (Keybind kb : KeybindManager.getRegisteredKeybinds().values()) {
-            keybindsObj.addProperty(kb.getId(), kb.getKeyCode());
+            keybindsObj.addProperty(kb.getName(), kb.getKeyCode());
         }
         root.add("keybinds", keybindsObj);
 
@@ -197,7 +195,7 @@ public class ConfigManager {
                 }
             }
 
-            for (Module module : MainClient.MODULE_MANAGER.getModules()) {
+            for (Module module : MainClient.MODULE_MANAGER.modules()) {
                 if (!root.has(module.getName())) continue;
 
                 JsonObject modObj = root.getAsJsonObject(module.getName());
@@ -235,8 +233,8 @@ public class ConfigManager {
             if (root.has("keybinds")) {
                 JsonObject keybindsObj = root.getAsJsonObject("keybinds");
                 for (Keybind kb : KeybindManager.getRegisteredKeybinds().values()) {
-                    if (keybindsObj.has(kb.getId())) {
-                        kb.setKeyCode(keybindsObj.get(kb.getId()).getAsInt());
+                    if (keybindsObj.has(kb.getName())) {
+                        kb.setKeyCode(keybindsObj.get(kb.getName()).getAsInt());
                     }
                 }
             }

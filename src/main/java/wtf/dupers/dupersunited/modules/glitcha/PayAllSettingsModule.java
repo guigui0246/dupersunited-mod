@@ -1,12 +1,12 @@
 package wtf.dupers.dupersunited.modules.glitcha;
 
 import wtf.dupers.dupersunited.features.PayAllManager;
-import wtf.dupers.dupersunited.modules.Category;
-import wtf.dupers.dupersunited.modules.Module;
-import wtf.dupers.dupersunited.modules.settings.BindSetting;
-import wtf.dupers.dupersunited.modules.settings.BooleanSetting;
-import wtf.dupers.dupersunited.modules.settings.IntSetting;
-import wtf.dupers.dupersunited.modules.settings.StringSetting;
+import wtf.dupers.dupersunited.api.module.Category;
+import wtf.dupers.dupersunited.api.module.Module;
+import wtf.dupers.dupersunited.api.module.settings.BindSetting;
+import wtf.dupers.dupersunited.api.module.settings.BooleanSetting;
+import wtf.dupers.dupersunited.api.module.settings.IntSetting;
+import wtf.dupers.dupersunited.api.module.settings.StringSetting;
 import org.lwjgl.glfw.GLFW;
 
 public class PayAllSettingsModule extends Module {

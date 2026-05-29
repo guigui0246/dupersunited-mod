@@ -4,7 +4,7 @@ import wtf.dupers.dupersunited.features.PacketLogger;
 import wtf.dupers.dupersunited.commands.MainCommand;
 import wtf.dupers.dupersunited.MainClient;
 import wtf.dupers.dupersunited.modules.render.FreecamModule;
-import wtf.dupers.dupersunited.modules.Module;
+import wtf.dupers.dupersunited.api.module.Module;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.ClientConnection;
@@ -25,7 +25,7 @@ import static wtf.dupers.dupersunited.features.SaveGuiManager.savedScreen;
 public class ClientConnectionMixin {
     @Inject(method = "send(Lnet/minecraft/network/packet/Packet;)V", at = @At("HEAD"))
     private void onSend(Packet<?> packet, CallbackInfo ci) {
-        for (Module module : MainClient.MODULE_MANAGER.getModules()) {
+        for (Module module : MainClient.MODULE_MANAGER.modules()) {
             if (module.isEnabled()) module.onPacketSend(packet);
         }
 
@@ -44,7 +44,7 @@ public class ClientConnectionMixin {
     @Inject(method = "channelRead0(Lio/netty/channel/ChannelHandlerContext;Lnet/minecraft/network/packet/Packet;)V",
             at = @At("HEAD"))
     private void onReceive(ChannelHandlerContext ctx, Packet<?> packet, CallbackInfo ci) {
-        for (Module module : MainClient.MODULE_MANAGER.getModules()) {
+        for (Module module : MainClient.MODULE_MANAGER.modules()) {
             if (module.isEnabled()) module.onPacketRecieve(packet);
         }
 

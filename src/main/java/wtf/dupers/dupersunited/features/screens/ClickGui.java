@@ -5,10 +5,10 @@ import wtf.dupers.dupersunited.features.ConfigManager;
 import wtf.dupers.dupersunited.features.screens.hud.HudEditorScreen;
 import wtf.dupers.dupersunited.features.screens.macroscreen.ChatMacroScreen;
 import wtf.dupers.dupersunited.features.screens.mainmenu.KeybindScreen;
-import wtf.dupers.dupersunited.keybinds.Keybind;
+import wtf.dupers.dupersunited.api.keybind.Keybind;
 import wtf.dupers.dupersunited.keybinds.KeybindManager;
-import wtf.dupers.dupersunited.modules.Module;
-import wtf.dupers.dupersunited.modules.settings.*;
+import wtf.dupers.dupersunited.api.module.Module;
+import wtf.dupers.dupersunited.api.module.settings.*;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
@@ -23,7 +23,6 @@ import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
-import wtf.dupers.dupersunited.modules.settings.*;
 
 import java.util.*;
 
@@ -152,7 +151,7 @@ public class ClickGui extends Screen {
 
     private List<String> getAllCategories() {
         List<String> result = new ArrayList<>();
-        for (Module m : MainClient.MODULE_MANAGER.getModules()) {
+        for (Module m : MainClient.MODULE_MANAGER.modules()) {
             String cat = m.getCategory();
             if (!result.contains(cat)) result.add(cat);
         }
@@ -648,7 +647,7 @@ public class ClickGui extends Screen {
     protected void init() {
         panels.clear();
         Map<String, List<Module>> cats = new LinkedHashMap<>();
-        for (Module m : MainClient.MODULE_MANAGER.getModules())
+        for (Module m : MainClient.MODULE_MANAGER.modules())
             cats.computeIfAbsent(customCategories.getOrDefault(m.getName(), m.getCategory()), k -> new ArrayList<>()).add(m);
 
         int maxWidth = MinecraftClient.getInstance().getWindow().getScaledWidth();

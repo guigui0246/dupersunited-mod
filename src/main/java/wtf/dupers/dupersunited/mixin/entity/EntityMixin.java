@@ -1,7 +1,7 @@
 package wtf.dupers.dupersunited.mixin.entity;
 
 import wtf.dupers.dupersunited.MainClient;
-import wtf.dupers.dupersunited.modules.Module;
+import wtf.dupers.dupersunited.api.module.Module;
 import wtf.dupers.dupersunited.modules.render.EspModule;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;

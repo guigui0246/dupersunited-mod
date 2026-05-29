@@ -4,9 +4,9 @@ import wtf.dupers.dupersunited.MainClient;
 import wtf.dupers.dupersunited.features.ConfigManager;
 import wtf.dupers.dupersunited.features.chatmacros.ChatMacro;
 import wtf.dupers.dupersunited.features.chatmacros.ChatMacroManager;
-import wtf.dupers.dupersunited.keybinds.Keybind;
+import wtf.dupers.dupersunited.api.keybind.Keybind;
 import wtf.dupers.dupersunited.keybinds.KeybindManager;
-import wtf.dupers.dupersunited.modules.Module;
+import wtf.dupers.dupersunited.api.module.Module;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
@@ -122,7 +122,7 @@ public class KeybindScreen extends Screen {
     private boolean rowMatchesSearch(Row row) {
         return switch (row) {
             case Row.ModuleRow(Module m) -> m.getName().toLowerCase(Locale.ROOT).contains(searchQuery);
-            case Row.KeybindRow(Keybind kb) -> kb.getId().toLowerCase(Locale.ROOT).contains(searchQuery);
+            case Row.KeybindRow(Keybind kb) -> kb.getName().toLowerCase(Locale.ROOT).contains(searchQuery);
             case Row.MacroRow(String name, int k) -> name.toLowerCase(Locale.ROOT).contains(searchQuery);
             case Row.ChatMacroRow(String name, int k) -> name.toLowerCase(Locale.ROOT).contains(searchQuery);
             default -> false;
@@ -140,7 +140,7 @@ public class KeybindScreen extends Screen {
         listeningChatMacro = null;
 
         Map<String, List<Module>> grouped = new LinkedHashMap<>();
-        for (Module m : MainClient.MODULE_MANAGER.getModules()) {
+        for (Module m : MainClient.MODULE_MANAGER.modules()) {
             grouped.computeIfAbsent(m.getCategory(), k -> new ArrayList<>()).add(m);
         }
         for (var entry : grouped.entrySet()) {
@@ -152,7 +152,7 @@ public class KeybindScreen extends Screen {
 
         Set<String> chatMacroIds = ChatMacroManager.getMacros().keySet();
         List<Keybind> filteredKeybinds = KeybindManager.getRegisteredKeybinds().values().stream()
-            .filter(kb -> !chatMacroIds.contains(kb.getId()))
+            .filter(kb -> !chatMacroIds.contains(kb.getName()))
             .collect(Collectors.toList());
         if (!filteredKeybinds.isEmpty()) {
             rows.add(new Row.Category("Keybinds"));
@@ -425,7 +425,7 @@ public class KeybindScreen extends Screen {
                 else if (i % 2 == 0) ctx.fill(panelLeft(), y, panelRight(), y + ROW_HEIGHT, 0x08FFFFFF);
 
                 ctx.drawTextWithShadow(this.textRenderer,
-                    Text.literal(keybind.getId()),
+                    Text.literal(keybind.getName()),
                     panelLeft() + 10, y + (ROW_HEIGHT - 9) / 2,
                     listening ? PEACH : PALE_NAVY);
 

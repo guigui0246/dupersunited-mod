@@ -1,5 +1,6 @@
 package wtf.dupers.dupersunited.keybinds;
 
+import wtf.dupers.dupersunited.api.keybind.Keybind;
 import wtf.dupers.dupersunited.commands.MainCommand;
 import wtf.dupers.dupersunited.features.PacketPauseManager;
 import wtf.dupers.dupersunited.modules.glitcha.PacketDelayModule;

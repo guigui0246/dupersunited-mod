@@ -1,24 +1,22 @@
 package wtf.dupers.dupersunited.commands.subcommands;
 
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
-
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import wtf.dupers.dupersunited.features.GhostBlock;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.command.CommandRegistryAccess;
+import wtf.dupers.dupersunited.api.command.Command;
+import wtf.dupers.dupersunited.features.GhostBlock;
 
-public final class RestoreGhostsCommand {
-    private RestoreGhostsCommand() {}
-
-    public static String getDescription() {
-        return "Restores all ghost blocks placed";
+public final class RestoreGhostsCommand extends Command {
+    public RestoreGhostsCommand() {
+        super("restore-ghosts", "Restores all ghost blocks placed");
     }
 
-    public static LiteralArgumentBuilder<FabricClientCommandSource> register() {
-        return literal("restore-ghosts")
-                .executes(context -> {
-                    GhostBlock.restoreGhosts();
-                    return 1;
-                });
+    @Override
+    public void build(LiteralArgumentBuilder<FabricClientCommandSource> builder, CommandRegistryAccess registryAccess) {
+        builder.executes(context -> {
+            GhostBlock.restoreGhosts();
+            return 1;
+        });
     }
 }
 

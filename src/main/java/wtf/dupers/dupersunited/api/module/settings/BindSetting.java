@@ -1,8 +1,8 @@
-package wtf.dupers.dupersunited.modules.settings;
+package wtf.dupers.dupersunited.api.module.settings;
 
-import wtf.dupers.dupersunited.keybinds.Keybind;
+import wtf.dupers.dupersunited.api.keybind.Keybind;
 import wtf.dupers.dupersunited.keybinds.KeybindManager;
-import wtf.dupers.dupersunited.modules.Module;
+import wtf.dupers.dupersunited.api.module.Module;
 import org.lwjgl.glfw.GLFW;
 import java.util.function.Consumer;
 

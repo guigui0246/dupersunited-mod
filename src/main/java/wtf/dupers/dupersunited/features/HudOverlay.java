@@ -1,8 +1,8 @@
 package wtf.dupers.dupersunited.features;
 
 import wtf.dupers.dupersunited.MainClient;
-import wtf.dupers.dupersunited.modules.Category;
-import wtf.dupers.dupersunited.modules.Module;
+import wtf.dupers.dupersunited.api.module.Category;
+import wtf.dupers.dupersunited.api.module.Module;
 import wtf.dupers.dupersunited.modules.glitcha.TpsCounterModule;
 import wtf.dupers.dupersunited.modules.render.HudModule;
 import wtf.dupers.dupersunited.modules.render.WatermarkModule;
@@ -93,7 +93,7 @@ public final class HudOverlay {
             if (hudModule != null && hudModule.isEnabled()) {
                 drawScaled(drawContext, client, HudEditorScreen.HUD_LIST, () -> {
                     int i = 0;
-                    for (Module module : MainClient.MODULE_MANAGER.getModules()) {
+                    for (Module module : MainClient.MODULE_MANAGER.modules()) {
                         //yo if you see this fuck you litten this is the correct way to do it bro trust me
                         if (!hudModule.renderSetting.getValue() && module.getCategory().equals(Category.render)) continue;
                         if (!hudModule.miscSetting.getValue() && module.getCategory().equals(Category.misc)) continue;

@@ -12,7 +12,7 @@ import wtf.dupers.dupersunited.features.screens.DupersUnitedScreen;
 import wtf.dupers.dupersunited.features.screens.mainmenu.alerts.NoProxyWarningScreen;
 import wtf.dupers.dupersunited.features.screens.mainmenu.alerts.UnsafeModuleWarningScreen;
 import wtf.dupers.dupersunited.features.ssidLogin.AccountsScreen;
-import wtf.dupers.dupersunited.modules.Module;
+import wtf.dupers.dupersunited.api.module.Module;
 import wtf.dupers.dupersunited.modules.misc.InvDropModule;
 import wtf.dupers.dupersunited.modules.misc.NoFallModule;
 import wtf.dupers.dupersunited.modules.misc.VanillaFlyModule;

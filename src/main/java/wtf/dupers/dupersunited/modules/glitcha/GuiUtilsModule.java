@@ -1,9 +1,9 @@
 package wtf.dupers.dupersunited.modules.glitcha;
 
-import wtf.dupers.dupersunited.modules.Module;
-import wtf.dupers.dupersunited.modules.Category;
-import wtf.dupers.dupersunited.modules.settings.BindSetting;
-import wtf.dupers.dupersunited.modules.settings.BooleanSetting;
+import wtf.dupers.dupersunited.api.module.Module;
+import wtf.dupers.dupersunited.api.module.Category;
+import wtf.dupers.dupersunited.api.module.settings.BindSetting;
+import wtf.dupers.dupersunited.api.module.settings.BooleanSetting;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.screen.slot.Slot;
@@ -41,6 +41,9 @@ public class GuiUtilsModule extends Module {
     public GuiUtilsModule() {
         super("GUIUtils", "Allows you to toggle buttons in GUIs.", Category.glitcha);
         this.register(new BindSetting("Keybind", GLFW.GLFW_KEY_UNKNOWN).linkedTo(this));
+
+        //enable by default
+        this.setEnabled(true);
     }
 
 }

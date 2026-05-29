@@ -1,17 +1,16 @@
-package wtf.dupers.dupersunited.keybinds;
+package wtf.dupers.dupersunited.api.keybind;
 
 public abstract class Keybind {
-
-    private final String id;
+    private final String name;
     private int keyCode;
 
-    public Keybind(String id, int defaultKey) {
-        this.id = id;
+    public Keybind(String name, int defaultKey) {
+        this.name = name;
         this.keyCode = defaultKey;
     }
 
-    public String getId() {
-        return id;
+    public String getName() {
+        return name;
     }
     public int getKeyCode() {
         return keyCode;

@@ -1,10 +1,9 @@
 package wtf.dupers.dupersunited.keybinds;
 
 import wtf.dupers.dupersunited.MainClient;
-import wtf.dupers.dupersunited.features.screens.*;
-import wtf.dupers.dupersunited.features.screens.macroscreen.*;
+import wtf.dupers.dupersunited.api.keybind.Keybind;
 import wtf.dupers.dupersunited.features.screens.mainmenu.KeybindScreen;
-import wtf.dupers.dupersunited.modules.Module;
+import wtf.dupers.dupersunited.api.module.Module;
 import wtf.dupers.dupersunited.mixin.accessor.KeyBindingAccessor;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -77,7 +76,7 @@ public final class KeybindManager {
             }
         }
 
-        for (Module m : MainClient.MODULE_MANAGER.getModules()) {
+        for (Module m : MainClient.MODULE_MANAGER.modules()) {
             int glfwKey = m.getKeybind();
             if (glfwKey == GLFW.GLFW_KEY_UNKNOWN) continue;
             int keyState = getInputState(window, glfwKey);
@@ -141,7 +140,7 @@ public final class KeybindManager {
     }
 
     public static void registerKeybind(Keybind keybind) {
-        registeredKeybinds.put(keybind.getId(), keybind);
+        registeredKeybinds.put(keybind.getName(), keybind);
     }
 
     public static void unregisterKeybind(String id) {

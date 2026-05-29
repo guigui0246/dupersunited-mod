@@ -1,14 +1,12 @@
 package wtf.dupers.dupersunited.commands.subcommands;
 
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.command.CommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import wtf.dupers.dupersunited.MainClient;
 import wtf.dupers.dupersunited.api.command.Command;
+import wtf.dupers.dupersunited.api.command.arguments.ModuleArgumentType;
 import wtf.dupers.dupersunited.api.module.Module;
 import wtf.dupers.dupersunited.commands.MainCommand;
 
@@ -21,12 +19,9 @@ public final class ToggleCommand extends Command {
 
     @Override
     public void build(LiteralArgumentBuilder<FabricClientCommandSource> builder, CommandRegistryAccess registryAccess) {
-        builder.then(argument("module", StringArgumentType.word())
-            .suggests((context, suggestions) ->
-                CommandSource.suggestMatching(MainClient.MODULE_MANAGER.modules().stream().map(Module::getName), suggestions))
+        builder.then(argument("module", ModuleArgumentType.module())
             .executes(context -> {
-                String moduleName = StringArgumentType.getString(context, "module");
-                Module module = MainClient.MODULE_MANAGER.getModuleByName(moduleName);
+                Module module = ModuleArgumentType.get(context);
 
                 if (module == null) {
                     MainCommand.sendMessage(
@@ -44,7 +39,7 @@ public final class ToggleCommand extends Command {
                     : Text.literal("disabled").formatted(Formatting.RED);
 
                 MainCommand.sendMessage(Text.empty()
-                    .append(Text.literal(moduleName).formatted(Formatting.AQUA))
+                    .append(Text.literal(module.getName()).formatted(Formatting.AQUA))
                     .append(" is now ")
                     .append(status)
                     .append("."), true);

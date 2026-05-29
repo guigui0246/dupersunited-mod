@@ -422,6 +422,13 @@ public class ClickGui extends Screen {
                                 ctx.drawText(textRenderer, ms.getValue(), sx + textRenderer.getWidth(lbl), sy, C_ORANGE, false);
                                 sy += SET_H;
 
+                            } else if (s instanceof EnumSetting<?> es) {
+                                String lbl = s.getName() + ": ";
+                                ctx.drawText(textRenderer, lbl, sx, sy, C_LBL, false);
+                                ctx.drawText(textRenderer, es.getValue().toString(), sx + textRenderer.getWidth(lbl), sy, C_ORANGE, false);
+                                sy += SET_H;
+
+
                             } else if (s instanceof ButtonSetting bs) {
                                 boolean hov2 = mx >= x && mx < x + pw && my >= sy && my < sy + SET_H;
                                 if (hov2) ctx.fill(x, sy, x + pw, sy + SET_H, C_HOVER);
@@ -558,6 +565,13 @@ public class ClickGui extends Screen {
                                         if (btn == 0) idx = (idx + 1) % opts.size();
                                         else idx = (idx - 1 + opts.size()) % opts.size();
                                         ms.setValue(opts.get(idx));
+                                        clearFocus();
+                                        return true;
+                                    }
+                                    sy += SET_H;
+                                } else if (s instanceof EnumSetting<?> es) {
+                                    if (my >= sy && my < sy + SET_H && (btn == 0 || btn == 1)) {
+                                        es.cycle(btn == 0);
                                         clearFocus();
                                         return true;
                                     }

@@ -92,6 +92,8 @@ public class ConfigManager {
                         settingsObj.addProperty(s.getName(), bs.getValue());
                     } else if (s instanceof ModeSetting ms) {
                         settingsObj.addProperty(s.getName(), ms.getValue());
+                    } else if (s instanceof EnumSetting<?> es) {
+                        settingsObj.addProperty(s.getName(), es.getValue().toString());
                     } else if (s instanceof StringSetting ss) {
                         settingsObj.addProperty(s.getName(), ss.getValue());
                     } else if (s instanceof BindSetting bs) {
@@ -218,6 +220,8 @@ public class ConfigManager {
                                 bs.setValue(el.getAsBoolean());
                             } else if (s instanceof ModeSetting ms) {
                                 ms.setValue(el.getAsString());
+                            } else if (s instanceof EnumSetting<?> es) {
+                                es.setValue(el.getAsString());
                             } else if (s instanceof StringSetting ss) {
                                 ss.setValue(el.getAsString());
                             } else if (s instanceof BindSetting bs) {

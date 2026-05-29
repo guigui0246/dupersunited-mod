@@ -19,7 +19,7 @@ public class ModeSetting extends Setting<String> {
     public void setOptions(String... newOptions) {
         options = Arrays.asList(newOptions);
         if (!options.contains(getValue())) {
-            super.setValue(options.get(0));
+            super.setValue(options.getFirst());
         }
     }
 

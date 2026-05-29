@@ -96,6 +96,7 @@ public final class ModuleCommand extends Command {
                                 case FloatSetting fs -> fs.setValue(Float.parseFloat(value));
                                 case BooleanSetting bs -> bs.setValue(Boolean.parseBoolean(value));
                                 case ModeSetting ms -> ms.setValue(value);
+                                case EnumSetting<?> es -> es.setValue(value);
                                 case StringSetting ss -> ss.setValue(value);
                                 default -> {
                                     MainCommand.sendMessage(

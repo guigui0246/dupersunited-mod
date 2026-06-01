@@ -45,7 +45,7 @@ public class ClientConnectionMixin {
             at = @At("HEAD"))
     private void onReceive(ChannelHandlerContext ctx, Packet<?> packet, CallbackInfo ci) {
         for (Module module : MainClient.MODULE_MANAGER.modules()) {
-            if (module.isEnabled()) module.onPacketRecieve(packet);
+            if (module.isEnabled()) module.onPacketReceive(packet);
         }
 
         PacketLogger.log(packet, "IN");

@@ -94,7 +94,7 @@ public class Module {
     public void onPacketSend(Packet<?> packet) {
     }
 
-    public void onPacketRecieve(Packet<?> packet) {
+    public void onPacketReceive(Packet<?> packet) {
     }
 
 

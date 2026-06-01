@@ -2,6 +2,7 @@ package wtf.dupers.dupersunited.features.ssidLogin;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mojang.util.UndashedUuid;
 import wtf.dupers.dupersunited.MainClient;
 import net.minecraft.client.MinecraftClient;
 
@@ -48,16 +49,9 @@ public class SessionAPI {
             String ign = profileInfo[0];
             String uuidString = profileInfo[1];
 
-            if (uuidString.length() == 32) {
-                uuidString =
-                        uuidString.substring(0, 8) + "-" +
-                                uuidString.substring(8, 12) + "-" +
-                                uuidString.substring(12, 16) + "-" +
-                                uuidString.substring(16, 20) + "-" +
-                                uuidString.substring(20, 32);
-            }
-
-            UUID uuid = UUID.fromString(uuidString);
+            UUID uuid = uuidString.contains("-")
+                ? UUID.fromString(uuidString)
+                : UndashedUuid.fromString(uuidString);
 
             var session = MinecraftClient.getInstance().getSession();
 

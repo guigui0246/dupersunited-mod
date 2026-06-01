@@ -24,6 +24,8 @@ public abstract class Command {
 
     public abstract void build(LiteralArgumentBuilder<FabricClientCommandSource> builder, CommandRegistryAccess registryAccess);
 
+    /* Utils */
+
     protected void sendMessage(String message, boolean prefix) {
         MainCommand.sendMessage(message, prefix);
     }

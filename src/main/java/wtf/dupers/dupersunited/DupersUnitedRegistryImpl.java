@@ -31,7 +31,7 @@ public class DupersUnitedRegistryImpl implements DupersUnitedRegistry {
 
     @Override
     public void registerModule(Module module) {
-        module.namespace = namespace; // todo use this maybe
+        module.namespace = namespace;
         this.modules.add(module);
     }
 

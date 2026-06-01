@@ -47,6 +47,7 @@ public class MainClient implements ModInitializer {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("DupersUnited");
     public static ModuleManager MODULE_MANAGER;
+    public static boolean addonsPresent = false;
     private static Map<String, Command> COMMANDS;
 
     @Override
@@ -125,6 +126,7 @@ public class MainClient implements ModInitializer {
         // addon initialization
         var addonContainers = FabricLoader.getInstance().getEntrypointContainers("dupersunited-addon", DupersUnitedAddon.class);
         for (EntrypointContainer<DupersUnitedAddon> addonContainer : addonContainers) {
+            addonsPresent = true;
             registry.namespace = addonContainer.getProvider().getMetadata().getId();
             addonContainer.getEntrypoint().initialize(registry);
         }

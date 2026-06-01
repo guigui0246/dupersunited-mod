@@ -49,6 +49,10 @@ public class Module {
         return name;
     }
 
+    public String getIdentifier() {
+        return namespace + ":" + name;
+    }
+
     public String getCategory() {
         return category;
     }

@@ -14,6 +14,7 @@ import wtf.dupers.dupersunited.MainClient;
 import wtf.dupers.dupersunited.api.module.Module;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 public class ModuleArgumentType implements ArgumentType<Module> {
     private static final ModuleArgumentType INSTANCE = new ModuleArgumentType();
@@ -47,6 +48,10 @@ public class ModuleArgumentType implements ArgumentType<Module> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        return CommandSource.suggestMatching(MainClient.getModules().stream().map(Module::getName), builder);
+        Stream<String> stream = MainClient.addonsPresent
+            ? MainClient.getModules().stream().flatMap((m) -> Stream.of(m.getName(), m.getIdentifier()))
+            : MainClient.getModules().stream().map(Module::getName);
+
+        return CommandSource.suggestMatching(stream, builder);
     }
 }

@@ -19,7 +19,7 @@ public record ModuleManager(List<Module> modules) {
 
     public Module getModuleByName(String name) {
         return modules.stream()
-            .filter(m -> m.getName().equalsIgnoreCase(name))
+            .filter(m -> m.getName().equalsIgnoreCase(name) || m.getIdentifier().equalsIgnoreCase(name))
             .findFirst()
             .orElse(null);
     }

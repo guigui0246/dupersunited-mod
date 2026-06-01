@@ -121,7 +121,7 @@ public class KeybindScreen extends Screen {
 
     private boolean rowMatchesSearch(Row row) {
         return switch (row) {
-            case Row.ModuleRow(Module m) -> m.getName().toLowerCase(Locale.ROOT).contains(searchQuery);
+            case Row.ModuleRow(Module m) -> m.getName().toLowerCase(Locale.ROOT).contains(searchQuery) || m.getIdentifier().toLowerCase(Locale.ROOT).contains(searchQuery);
             case Row.KeybindRow(Keybind kb) -> kb.getName().toLowerCase(Locale.ROOT).contains(searchQuery);
             case Row.MacroRow(String name, int k) -> name.toLowerCase(Locale.ROOT).contains(searchQuery);
             case Row.ChatMacroRow(String name, int k) -> name.toLowerCase(Locale.ROOT).contains(searchQuery);

@@ -284,8 +284,9 @@ public class ClickGui extends Screen {
         private List<Module> getFilteredModules() {
             if (searchQuery.isEmpty()) return modules;
             List<Module> filtered = new ArrayList<>();
+            String query = searchQuery.toLowerCase(Locale.ROOT);
             for (Module m : modules) {
-                if (m.getName().toLowerCase(Locale.ROOT).contains(searchQuery.toLowerCase(Locale.ROOT))) {
+                if (m.getName().toLowerCase(Locale.ROOT).contains(query) || m.getIdentifier().toLowerCase(Locale.ROOT).contains(query)) {
                     filtered.add(m);
                 }
             }
@@ -306,7 +307,7 @@ public class ClickGui extends Screen {
             if (filtered.isEmpty() && !searchQuery.isEmpty()) return HEADER_H + MOD_H;
             for (Module m : filtered) {
                 h += MOD_H;
-                if (expanded.contains(m.getName())) {
+                if (expanded.contains(m.getIdentifier())) {
                     populateSettings(m);
                     if (!settings.isEmpty()) h += settBlockH(settings);
                 }
@@ -352,7 +353,7 @@ public class ClickGui extends Screen {
             for (Module mod : filtered) {
                 boolean hov = mx >= x && mx < x + pw && my >= ry && my < ry + MOD_H;
                 boolean on = mod.isEnabled();
-                boolean exp = expanded.contains(mod.getName());
+                boolean exp = expanded.contains(mod.getIdentifier());
                 if (hov) {
                     ctx.fill(x, ry, x + pw, ry + MOD_H, C_HOVER);
                     hoveredDescription = mod.getDescription();
@@ -437,7 +438,7 @@ public class ClickGui extends Screen {
                                 sy += SET_H;
 
                             } else if (s instanceof BindSetting bs) {
-                                boolean isRebinding = mod.getName().equals(rebindingModule) && s.getName().equals(focusedSet);
+                                boolean isRebinding = mod.getIdentifier().equals(rebindingModule) && s.getName().equals(focusedSet);
                                 String lbl = s.getName() + ": ";
                                 String val = isRebinding ? "..." : "[" + bs.getKeyName() + "]";
                                 ctx.drawText(textRenderer, lbl, sx, sy, C_LBL, false);
@@ -445,7 +446,7 @@ public class ClickGui extends Screen {
                                 sy += SET_H;
 
                             } else if (s instanceof StringSetting ss2) {
-                                boolean focused = isFocused(this, mod.getName(), s.getName());
+                                boolean focused = isFocused(this, mod.getIdentifier(), s.getName());
                                 String lbl = s.getName() + ": ";
                                 String val = ss2.getValue();
                                 String renderedVal = val.replace('&', '§');
@@ -512,7 +513,7 @@ public class ClickGui extends Screen {
                     }
                     if (btn == 1) {
                         if (!settings.isEmpty()) {
-                            toggleExpand(mod.getName());
+                            toggleExpand(mod.getIdentifier());
                             return true;
                         }
                     }
@@ -520,7 +521,7 @@ public class ClickGui extends Screen {
                 }
                 ry += MOD_H;
 
-                if (expanded.contains(mod.getName())) {
+                if (expanded.contains(mod.getIdentifier())) {
                     List<Setting<?>> ss = settings;
                     if (!ss.isEmpty()) {
                         int bh = settBlockH(ss);
@@ -534,7 +535,7 @@ public class ClickGui extends Screen {
                                     if (my >= sy && my <= barY + SLD_H + 2 && btn == 0) {
                                         float pct = (float) (mx - sx) / sw;
                                         fs.setValue(fs.getMin() + pct * (fs.getMax() - fs.getMin()));
-                                        sliderMod = mod.getName();
+                                        sliderMod = mod.getIdentifier();
                                         sliderSet = fs.getName();
                                         clearFocus();
                                         return true;
@@ -545,7 +546,7 @@ public class ClickGui extends Screen {
                                     if (my >= sy && my <= barY + SLD_H + 2 && btn == 0) {
                                         float pct = (float) (mx - sx) / sw;
                                         is.setValue(Math.round(is.getMin() + pct * (is.getMax() - is.getMin())));
-                                        sliderMod = mod.getName();
+                                        sliderMod = mod.getIdentifier();
                                         sliderSet = is.getName();
                                         clearFocus();
                                         return true;
@@ -585,14 +586,14 @@ public class ClickGui extends Screen {
                                     sy += SET_H;
                                 } else if (s instanceof BindSetting) {
                                     if (my >= sy && my < sy + SET_H && btn == 0) {
-                                        setFocus(this, mod.getName(), s.getName());
-                                        rebindingModule = mod.getName();
+                                        setFocus(this, mod.getIdentifier(), s.getName());
+                                        rebindingModule = mod.getIdentifier();
                                         return true;
                                     }
                                     sy += SET_H;
                                 } else if (s instanceof StringSetting ss2) {
                                     if (my >= sy && my < sy + SET_H && btn == 0) {
-                                        setFocus(this, mod.getName(), s.getName());
+                                        setFocus(this, mod.getIdentifier(), s.getName());
                                         clearSelection();
                                         String val = ss2.getValue();
                                         int valueX = sx + textRenderer.getWidth(s.getName() + ": ");
@@ -662,7 +663,7 @@ public class ClickGui extends Screen {
         panels.clear();
         Map<String, List<Module>> cats = new LinkedHashMap<>();
         for (Module m : MainClient.MODULE_MANAGER.modules())
-            cats.computeIfAbsent(customCategories.getOrDefault(m.getName(), m.getCategory()), k -> new ArrayList<>()).add(m);
+            cats.computeIfAbsent(customCategories.getOrDefault(m.getIdentifier(), customCategories.getOrDefault(m.getName(), m.getCategory())), k -> new ArrayList<>()).add(m);
 
         int maxWidth = MinecraftClient.getInstance().getWindow().getScaledWidth();
         int col = 0;

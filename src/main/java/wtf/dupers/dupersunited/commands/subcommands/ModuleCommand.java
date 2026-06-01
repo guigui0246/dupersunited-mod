@@ -9,6 +9,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import wtf.dupers.dupersunited.MainClient;
 import wtf.dupers.dupersunited.api.command.Command;
+import wtf.dupers.dupersunited.api.command.arguments.ModuleArgumentType;
 import wtf.dupers.dupersunited.api.module.Module;
 import wtf.dupers.dupersunited.api.module.settings.*;
 import wtf.dupers.dupersunited.commands.MainCommand;
@@ -22,32 +23,21 @@ public final class ModuleCommand extends Command {
 
     @Override
     public void build(LiteralArgumentBuilder<FabricClientCommandSource> builder, CommandRegistryAccess registryAccess) {
-        builder.then(argument("module", StringArgumentType.word())
-            .suggests((context, suggestions) ->
-                CommandSource.suggestMatching(MainClient.MODULE_MANAGER.modules().stream().map(Module::getName), suggestions))
+        builder.then(argument("module", ModuleArgumentType.module())
             .executes(context -> {
-                String moduleName = StringArgumentType.getString(context, "module");
-                Module module = MainClient.MODULE_MANAGER.getModuleByName(moduleName);
-
-                if (module == null) {
-                    MainCommand.sendMessage(
-                        Text.literal("Module not found.").formatted(Formatting.RED),
-                        true
-                    );
-                    return 0;
-                }
+                Module module = ModuleArgumentType.get(context);
 
                 var settings = module.getSettings();
                 if (settings.isEmpty()) {
                     MainCommand.sendMessage(Text.empty()
-                        .append(Text.literal(moduleName).formatted(Formatting.AQUA))
+                        .append(Text.literal(module.getName()).formatted(Formatting.AQUA))
                         .append(" has no settings."), true);
 
                     return 1;
                 }
 
                 MainCommand.sendMessage(Text.literal("Settings for ")
-                    .append(Text.literal(moduleName).formatted(Formatting.AQUA))
+                    .append(Text.literal(module.getName()).formatted(Formatting.AQUA))
                     .append(":"), true);
 
                 for (var setting : settings) {

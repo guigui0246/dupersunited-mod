@@ -103,7 +103,7 @@ public class ConfigManager {
                 modObj.add("settings", settingsObj);
             }
 
-            root.add(module.getName(), modObj);
+            root.add(module.getIdentifier(), modObj);
         }
 
         JsonObject keybindsObj = new JsonObject();
@@ -198,9 +198,10 @@ public class ConfigManager {
             }
 
             for (Module module : MainClient.MODULE_MANAGER.modules()) {
-                if (!root.has(module.getName())) continue;
+                boolean useIdentifier = root.has(module.getIdentifier());
+                if (!useIdentifier && !root.has(module.getName())) continue;
 
-                JsonObject modObj = root.getAsJsonObject(module.getName());
+                JsonObject modObj = root.getAsJsonObject(useIdentifier ? module.getIdentifier() : module.getName());
 
                 if (modObj.has("keybind")) {
                     module.setKeybind(modObj.get("keybind").getAsInt());

@@ -38,7 +38,6 @@ import wtf.dupers.dupersunited.modules.exploit.BookBotModule;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import static wtf.dupers.dupersunited.features.ssidLogin.SessionManager.*;
@@ -124,7 +123,7 @@ public class MainClient implements ModInitializer {
         );
 
         // addon initialization
-        var addonContainers = FabricLoader.getInstance().getEntrypointContainers("dupersunited-addon", DupersUnitedAddon.class);
+        var addonContainers = FabricLoader.getInstance().getEntrypointContainers("dupersunited:addon", DupersUnitedAddon.class);
         for (EntrypointContainer<DupersUnitedAddon> addonContainer : addonContainers) {
             addonsPresent = true;
             registry.namespace = addonContainer.getProvider().getMetadata().getId();
@@ -229,14 +228,5 @@ public class MainClient implements ModInitializer {
             .filter(commandClass::isInstance)
             .map(commandClass::cast)
             .findFirst().orElse(null);
-    }
-
-    @Nullable
-    public static Command getCommand(String commandName) {
-        // use values first because map keys are unstable
-        return COMMANDS.values().stream()
-            .filter(command -> Objects.equals(commandName, command.command))
-            .findFirst()
-            .orElseGet(() -> COMMANDS.getOrDefault(commandName, null));
     }
 }

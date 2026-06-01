@@ -4,6 +4,9 @@ import wtf.dupers.dupersunited.api.command.Command;
 import wtf.dupers.dupersunited.api.module.Module;
 import wtf.dupers.dupersunited.api.keybind.Keybind;
 
+/**
+ * The interface through which you register features into the DupersUnited mod.
+ */
 public interface DupersUnitedRegistry {
     void registerCommand(Command command);
 

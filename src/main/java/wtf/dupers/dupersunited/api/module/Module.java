@@ -45,10 +45,16 @@ public class Module {
                 .orElse(null);
     }
 
+    /**
+     * @return The module's display name. Multiple modules can have the same display name.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * @return The identifier for the module, guaranteed to be unique.
+     */
     public String getIdentifier() {
         return namespace + ":" + name;
     }

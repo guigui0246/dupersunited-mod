@@ -61,13 +61,11 @@ public class AsyncConfigs {
 
     public static <T> CompletableFuture<T> load(TypeToken<T> type, Path file, String id) {
         return CompletableFuture.supplyAsync(() -> {
-                MainClient.LOGGER.info("[{}] Read file", id);
                 try { return loadInternal(type, file); }
                 catch (IOException e) { throw new CompletionException(e); }
             }, SharedVariables.IO_EXECUTOR)
             .whenComplete((res, e) -> {
                 if (e != null) MainClient.LOGGER.error("Error loading {}", id, e);
-                MainClient.LOGGER.info("[{}] Post-read hook", id);
             });
     }
 

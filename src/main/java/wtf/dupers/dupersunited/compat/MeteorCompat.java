@@ -1,5 +1,6 @@
 package wtf.dupers.dupersunited.compat;
 
+import net.minecraft.client.MinecraftClient;
 import org.jetbrains.annotations.Nullable;
 import wtf.dupers.dupersunited.MainClient;
 import wtf.dupers.dupersunited.features.ssidLogin.AccountsScreen;
@@ -11,6 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * dumb shit magic stuff
+ * @author Crosby
+ */
 public final class MeteorCompat {
     private static boolean errored = false;
 
@@ -19,20 +24,14 @@ public final class MeteorCompat {
     }
 
     public static List<AccountsScreen.AccountEntry> getAccounts() {
-        if (!isPresent()) {
-            return List.of();
-        }
-
-        // dumb shit magic stuff
+        if (!isPresent()) return List.of();
 
         try {
             Class<?> accountsClass = Class.forName("meteordevelopment.meteorclient.systems.accounts.Accounts");
             Method accounts_get_Method = accountsClass.getDeclaredMethod("get");
             Iterable<?> accounts = (Iterable<?>) accounts_get_Method.invoke(null);
 
-            if (accounts == null) {
-                return List.of();
-            }
+            if (accounts == null) return List.of();
 
             Class<?> accountClass = Class.forName("meteordevelopment.meteorclient.systems.accounts.Account");
             Method account_fetchInfo_Method = accountClass.getDeclaredMethod("fetchInfo");
@@ -86,9 +85,7 @@ public final class MeteorCompat {
     }
 
     public static boolean shouldWarnUnsafeModules() {
-        if (!isPresent()) {
-            return false;
-        }
+        if (!isPresent()) return false;
 
         try {
             Class<?> modulesClass = Class.forName("meteordevelopment.meteorclient.systems.modules.Modules");
@@ -165,6 +162,19 @@ public final class MeteorCompat {
         }
 
         return false;
+    }
+
+    public static int getTitleScreenYOffset() {
+        if (!isPresent()) return 0;
+
+        try {
+            Class<?> entrypointType = Class.forName("meteordevelopment.meteorclient.addons.MeteorAddon");
+            int entries = 1 + FabricLoader.getInstance().getEntrypoints("meteor", entrypointType).size();
+            return (MinecraftClient.getInstance().textRenderer.fontHeight + 2) * entries - 2;
+        } catch (ClassNotFoundException e) {
+            error(e);
+            return 0;
+        }
     }
 
     private static void error(Throwable t) {

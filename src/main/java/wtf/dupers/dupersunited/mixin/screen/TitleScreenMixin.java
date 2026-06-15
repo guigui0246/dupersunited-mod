@@ -1,6 +1,7 @@
 package wtf.dupers.dupersunited.mixin.screen;
 
 import wtf.dupers.dupersunited.SharedVariables;
+import wtf.dupers.dupersunited.compat.MeteorCompat;
 import wtf.dupers.dupersunited.features.screens.DupersUnitedScreen;
 import wtf.dupers.dupersunited.features.screens.mainmenu.*;
 import wtf.dupers.dupersunited.features.ssidLogin.*;
@@ -58,7 +59,7 @@ public abstract class TitleScreenMixin extends Screen {
                             assert this.client != null;
                             this.client.setScreen(new DupersUnitedScreen(MinecraftClient.getInstance().currentScreen));
                         }
-                ).dimensions(x - 105, 5, 100, 20).build()
+                ).dimensions(x - 105, 5 + MeteorCompat.getTitleScreenYOffset(), 100, 20).build()
         );
     }
 

@@ -18,13 +18,14 @@ public class StringSetting extends Setting<String> {
     }
 
     @Override
-    public void setValue(String value) {
-        if (value == null) return;
+    public boolean setValue(String value) {
+        if (value == null) return false;
         if (value.length() > maxLength) {
             super.setValue(value.substring(0, maxLength));
         } else {
             super.setValue(value);
         }
+        return true;
     }
 
     public int getMaxLength() { return maxLength; }

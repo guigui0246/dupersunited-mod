@@ -13,8 +13,12 @@ public class IntSetting extends Setting<Integer> {
     }
 
     @Override
-    public void setValue(Integer value) {
-        super.setValue(Math.max(min, Math.min(max, value)));
+    public boolean setValue(Integer value) {
+        if (value >= min && value <= max) {
+            return super.setValue(value);
+        } else {
+            return false;
+        }
     }
 
     public int getMin() { return min; }

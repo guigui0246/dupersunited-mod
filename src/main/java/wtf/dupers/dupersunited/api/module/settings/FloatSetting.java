@@ -13,8 +13,12 @@ public class FloatSetting extends Setting<Float> {
     }
 
     @Override
-    public void setValue(Float value) {
-        super.setValue(Math.max(min, Math.min(max, value)));
+    public boolean setValue(Float value) {
+        if (value >= min && value <= max) {
+            return super.setValue(value);
+        } else {
+            return false;
+        }
     }
 
     public float getMin() { return min; }

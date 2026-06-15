@@ -17,7 +17,14 @@ public abstract class Setting<T> {
 
     public String getName() { return name; }
     public T getValue() { return value; }
-    public void setValue(T value) { this.value = value; }
+
+    /**
+     * @return Whether the value was successfully changed.
+     */
+    public boolean setValue(T value) {
+        this.value = value;
+        return true;
+    }
 
     public boolean shouldSaveConfig() { return true; }
     public abstract JsonElement writeJson();

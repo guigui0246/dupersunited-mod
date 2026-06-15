@@ -15,8 +15,12 @@ public class ModeSetting extends Setting<String> {
     }
 
     @Override
-    public void setValue(String value) {
-        if (options.contains(value)) super.setValue(value);
+    public boolean setValue(String value) {
+        if (options.contains(value)) {
+            return super.setValue(value);
+        } else {
+            return false;
+        }
     }
 
     public void setOptions(String... newOptions) {

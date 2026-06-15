@@ -14,12 +14,13 @@ public class EnumSetting<T extends Enum<T>> extends Setting<T> {
         this.options = Arrays.asList(defaultValue.getDeclaringClass().getEnumConstants());
     }
 
-    public void setValue(String stringifiedValue) {
+    public boolean setValue(String stringifiedValue) {
         for (T option : this.options) {
             if (option.toString().equals(stringifiedValue)) {
-                this.setValue(option);
+                return this.setValue(option);
             }
         }
+        return false;
     }
 
     public void cycle(boolean forwards) {

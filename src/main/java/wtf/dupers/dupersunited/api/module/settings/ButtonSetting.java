@@ -11,6 +11,11 @@ public class ButtonSetting extends Setting<String> {
         this.action = action;
     }
 
+    @Override
+    public boolean setValue(String value) {
+        return false;
+    }
+
     public void press() {
         action.run();
     }

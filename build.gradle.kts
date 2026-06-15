@@ -77,6 +77,6 @@ publishing {
     }
 
     repositories {
-        // we never gonna use this :wilted_flower: :victory_hand: :raised_fist:
+        mavenLocal() // till release
     }
 }

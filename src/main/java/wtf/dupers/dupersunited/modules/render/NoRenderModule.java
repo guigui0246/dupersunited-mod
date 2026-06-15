@@ -1,5 +1,10 @@
 package wtf.dupers.dupersunited.modules.render;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
 import wtf.dupers.dupersunited.features.screens.NoRenderScreen;
 import wtf.dupers.dupersunited.api.module.Category;
 import wtf.dupers.dupersunited.api.module.Module;
@@ -32,5 +37,25 @@ public class NoRenderModule extends Module {
 
     public void openScreen() {
         MinecraftClient.getInstance().setScreen(new NoRenderScreen());
+    }
+
+    @Override
+    public JsonElement writeJson() {
+        JsonObject object = (JsonObject) super.writeJson();
+        JsonArray noRenderEntities = new JsonArray();
+        for (EntityType<?> type : selectedEntityIds) noRenderEntities.add(Registries.ENTITY_TYPE.getId(type).toString());
+        object.add("selected-entity-ids", noRenderEntities);
+        return object;
+    }
+
+    @Override
+    public void readJson(JsonElement element) {
+        super.readJson(element);
+        if (element instanceof JsonObject object && object.has("selected-entity-ids")) {
+            selectedEntityIds.clear();
+            for (JsonElement el : object.getAsJsonArray("selected-entity-ids")) {
+                Registries.ENTITY_TYPE.getEntry(Identifier.tryParse(el.getAsString())).ifPresent(entry -> selectedEntityIds.add(entry.value()));
+            }
+        }
     }
 }

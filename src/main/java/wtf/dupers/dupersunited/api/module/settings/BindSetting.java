@@ -1,5 +1,7 @@
 package wtf.dupers.dupersunited.api.module.settings;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import wtf.dupers.dupersunited.api.keybind.Keybind;
 import wtf.dupers.dupersunited.keybinds.KeybindManager;
 import wtf.dupers.dupersunited.api.module.Module;
@@ -75,5 +77,15 @@ public class BindSetting extends Setting<Integer> {
         if (name != null) return name.toUpperCase();
 
         return "K" + code;
+    }
+
+    @Override
+    public JsonElement writeJson() {
+        return new JsonPrimitive(this.getValue());
+    }
+
+    @Override
+    public void readJson(JsonElement element) throws IllegalArgumentException {
+        this.setKeyCode(element.getAsInt());
     }
 }

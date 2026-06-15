@@ -9,15 +9,8 @@ import wtf.dupers.dupersunited.features.screens.hud.HudElement;
 import wtf.dupers.dupersunited.api.keybind.Keybind;
 import wtf.dupers.dupersunited.keybinds.KeybindManager;
 import wtf.dupers.dupersunited.api.module.Module;
-import wtf.dupers.dupersunited.modules.render.BlockEspModule;
-import wtf.dupers.dupersunited.modules.render.EspModule;
-import wtf.dupers.dupersunited.modules.render.NoRenderModule;
 import wtf.dupers.dupersunited.api.module.settings.*;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.block.Block;
-import net.minecraft.entity.EntityType;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
 import org.joml.Vector2i;
 
 import java.nio.file.Path;
@@ -78,32 +71,8 @@ public class ConfigManager {
         root.add("hud", hudObj);
 
         for (Module module : MainClient.MODULE_MANAGER.modules()) {
-            JsonObject modObj = new JsonObject();
-
-            modObj.addProperty("keybind", module.getKeybind());
-            modObj.addProperty("enabled", module.isEnabled());
-
-            if (!module.getSettings().isEmpty()) {
-                JsonObject settingsObj = new JsonObject();
-                for (Setting<?> s : module.getSettings()) {
-                    if (s instanceof FloatSetting fs) {
-                        settingsObj.addProperty(s.getName(), fs.getValue());
-                    } else if (s instanceof BooleanSetting bs) {
-                        settingsObj.addProperty(s.getName(), bs.getValue());
-                    } else if (s instanceof ModeSetting ms) {
-                        settingsObj.addProperty(s.getName(), ms.getValue());
-                    } else if (s instanceof EnumSetting<?> es) {
-                        settingsObj.addProperty(s.getName(), es.getValue().toString());
-                    } else if (s instanceof StringSetting ss) {
-                        settingsObj.addProperty(s.getName(), ss.getValue());
-                    } else if (s instanceof BindSetting bs) {
-                        settingsObj.addProperty(s.getName(), bs.getValue());
-                    }
-                }
-                modObj.add("settings", settingsObj);
-            }
-
-            root.add(module.getIdentifier(), modObj);
+            JsonElement moduleData = module.writeJson();
+            root.add(module.getIdentifier(), moduleData);
         }
 
         JsonObject keybindsObj = new JsonObject();
@@ -111,18 +80,6 @@ public class ConfigManager {
             keybindsObj.addProperty(kb.getName(), kb.getKeyCode());
         }
         root.add("keybinds", keybindsObj);
-
-        JsonArray espBlocks = new JsonArray();
-        for (Block block : BlockEspModule.selectedBlocks) espBlocks.add(Registries.BLOCK.getId(block).toString());
-        root.add("blockEspBlocks", espBlocks);
-
-        JsonArray noRenderEntities = new JsonArray();
-        for (EntityType<?> type : NoRenderModule.selectedEntityIds) noRenderEntities.add(Registries.ENTITY_TYPE.getId(type).toString());
-        root.add("noRenderEntities", noRenderEntities);
-
-        JsonArray espEntities = new JsonArray();
-        for (EntityType<?> type : EspModule.selectedEntityIds) espEntities.add(Registries.ENTITY_TYPE.getId(type).toString());
-        root.add("espEntities", espEntities);
 
         JsonObject clickguiCategories = new JsonObject();
         ClickGui.customCategories.forEach(clickguiCategories::addProperty);
@@ -201,38 +158,8 @@ public class ConfigManager {
                 boolean useIdentifier = root.has(module.getIdentifier());
                 if (!useIdentifier && !root.has(module.getName())) continue;
 
-                JsonObject modObj = root.getAsJsonObject(useIdentifier ? module.getIdentifier() : module.getName());
-
-                if (modObj.has("keybind")) {
-                    module.setKeybind(modObj.get("keybind").getAsInt());
-                }
-                if (modObj.has("enabled")) {
-                    module.setEnabled(modObj.get("enabled").getAsBoolean());
-                }
-                if (modObj.has("settings")) {
-                    JsonObject settingsObj = modObj.getAsJsonObject("settings");
-                    for (Setting<?> s : module.getSettings()) {
-                        if (!settingsObj.has(s.getName())) continue;
-                        JsonElement el = settingsObj.get(s.getName());
-                        try {
-                            if (s instanceof FloatSetting fs) {
-                                fs.setValue(el.getAsFloat());
-                            } else if (s instanceof BooleanSetting bs) {
-                                bs.setValue(el.getAsBoolean());
-                            } else if (s instanceof ModeSetting ms) {
-                                ms.setValue(el.getAsString());
-                            } else if (s instanceof EnumSetting<?> es) {
-                                es.setValue(el.getAsString());
-                            } else if (s instanceof StringSetting ss) {
-                                ss.setValue(el.getAsString());
-                            } else if (s instanceof BindSetting bs) {
-                                bs.setKeyCode(el.getAsInt());
-                            }
-                        } catch (Exception e) {
-                            MainClient.LOGGER.error("Bad value for {}.{}: '{}'", module.getName(), s.getName(), el, e);
-                        }
-                    }
-                }
+                JsonElement moduleData = root.get(useIdentifier ? module.getIdentifier() : module.getName());
+                module.readJson(moduleData);
             }
 
             if (root.has("keybinds")) {
@@ -241,27 +168,6 @@ public class ConfigManager {
                     if (keybindsObj.has(kb.getName())) {
                         kb.setKeyCode(keybindsObj.get(kb.getName()).getAsInt());
                     }
-                }
-            }
-
-            if (root.has("blockEspBlocks")) {
-                BlockEspModule.selectedBlocks.clear();
-                for (JsonElement el : root.getAsJsonArray("blockEspBlocks")) {
-                    Registries.BLOCK.getEntry(Identifier.tryParse(el.getAsString())).ifPresent(entry -> BlockEspModule.selectedBlocks.add(entry.value()));
-                }
-            }
-
-            if (root.has("noRenderEntities")) {
-                NoRenderModule.selectedEntityIds.clear();
-                for (JsonElement el : root.getAsJsonArray("noRenderEntities")) {
-                    Registries.ENTITY_TYPE.getEntry(Identifier.tryParse(el.getAsString())).ifPresent(entry -> NoRenderModule.selectedEntityIds.add(entry.value()));
-                }
-            }
-
-            if (root.has("espEntities")) {
-                EspModule.selectedEntityIds.clear();
-                for (JsonElement el : root.getAsJsonArray("espEntities")) {
-                    Registries.ENTITY_TYPE.getEntry(Identifier.tryParse(el.getAsString())).ifPresent(entry -> EspModule.selectedEntityIds.add(entry.value()));
                 }
             }
 

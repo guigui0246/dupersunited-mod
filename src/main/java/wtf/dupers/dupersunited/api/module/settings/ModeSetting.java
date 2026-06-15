@@ -1,5 +1,8 @@
 package wtf.dupers.dupersunited.api.module.settings;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,4 +27,14 @@ public class ModeSetting extends Setting<String> {
     }
 
     public List<String> getOptions() { return options; }
+
+    @Override
+    public JsonElement writeJson() {
+        return new JsonPrimitive(this.getValue());
+    }
+
+    @Override
+    public void readJson(JsonElement element) throws IllegalArgumentException {
+        this.setValue(element.getAsString());
+    }
 }

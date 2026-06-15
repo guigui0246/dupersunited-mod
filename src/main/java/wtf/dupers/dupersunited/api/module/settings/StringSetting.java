@@ -1,5 +1,8 @@
 package wtf.dupers.dupersunited.api.module.settings;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+
 public class StringSetting extends Setting<String> {
 
     private final int maxLength;
@@ -25,4 +28,14 @@ public class StringSetting extends Setting<String> {
     }
 
     public int getMaxLength() { return maxLength; }
+
+    @Override
+    public JsonElement writeJson() {
+        return new JsonPrimitive(this.getValue());
+    }
+
+    @Override
+    public void readJson(JsonElement element) throws IllegalArgumentException {
+        this.setValue(element.getAsString());
+    }
 }

@@ -1,5 +1,8 @@
 package wtf.dupers.dupersunited.api.module.settings;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,5 +31,15 @@ public class EnumSetting<T extends Enum<T>> extends Setting<T> {
 
     public List<T> getOptions() {
         return this.options;
+    }
+
+    @Override
+    public JsonElement writeJson() {
+        return new JsonPrimitive(this.getValue().toString());
+    }
+
+    @Override
+    public void readJson(JsonElement element) throws IllegalArgumentException {
+        this.setValue(element.getAsString());
     }
 }

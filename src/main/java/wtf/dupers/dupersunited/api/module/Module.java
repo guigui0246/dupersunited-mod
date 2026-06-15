@@ -1,5 +1,8 @@
 package wtf.dupers.dupersunited.api.module;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import wtf.dupers.dupersunited.MainClient;
 import wtf.dupers.dupersunited.commands.MainCommand;
 import wtf.dupers.dupersunited.api.module.settings.Setting;
 import net.minecraft.text.Text;
@@ -112,5 +115,46 @@ public class Module {
 
     public void setKeybind(int key) {
         this.keybind = key;
+    }
+
+    public JsonElement writeJson() {
+        JsonObject root = new JsonObject();
+
+        root.addProperty("keybind", this.getKeybind());
+        root.addProperty("enabled", this.isEnabled());
+
+        if (!this.getSettings().isEmpty()) {
+            JsonObject settingsObj = new JsonObject();
+            for (Setting<?> s : this.getSettings()) {
+                if (!s.shouldSaveConfig()) continue;
+                settingsObj.add(s.getName(), s.writeJson());
+            }
+            root.add("settings", settingsObj);
+        }
+
+        return root;
+    }
+
+    public void readJson(JsonElement element) {
+        if (element instanceof JsonObject root) {
+            if (root.has("keybind")) {
+                this.setKeybind(root.get("keybind").getAsInt());
+            }
+            if (root.has("enabled")) {
+                this.setEnabled(root.get("enabled").getAsBoolean());
+            }
+            if (root.has("settings")) {
+                JsonObject settingsObj = root.getAsJsonObject("settings");
+                for (Setting<?> s : this.getSettings()) {
+                    if (!s.shouldSaveConfig() || !settingsObj.has(s.getName())) continue;
+                    JsonElement el = settingsObj.get(s.getName());
+                    try {
+                        s.readJson(el);
+                    } catch (Exception e) {
+                        MainClient.LOGGER.error("Bad value for {}.{}: '{}'", this.getName(), s.getName(), el, e);
+                    }
+                }
+            }
+        }
     }
 }

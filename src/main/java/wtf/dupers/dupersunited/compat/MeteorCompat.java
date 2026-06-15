@@ -9,10 +9,17 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public final class MeteorCompat {
+    private static boolean errored = false;
+
+    public static boolean isPresent() {
+        return FabricLoader.getInstance().isModLoaded("meteor-client");
+    }
+
     public static List<AccountsScreen.AccountEntry> getAccounts() {
-        if (!FabricLoader.getInstance().isModLoaded("meteor-client")) {
+        if (!isPresent()) {
             return List.of();
         }
 
@@ -73,8 +80,97 @@ public final class MeteorCompat {
 
             return meteorAccountEntries;
         } catch (ReflectiveOperationException e) {
-            MainClient.LOGGER.error("Error loading meteor client compat", e);
+            error(e);
             return List.of();
+        }
+    }
+
+    public static boolean shouldWarnUnsafeModules() {
+        if (!isPresent()) {
+            return false;
+        }
+
+        try {
+            Class<?> modulesClass = Class.forName("meteordevelopment.meteorclient.systems.modules.Modules");
+            Method modules_get_Method = modulesClass.getDeclaredMethod("get");
+            @Nullable Object modules = modules_get_Method.invoke(null);
+            if (modules == null) {
+                return false; // meteor modules not initialized yet
+            }
+
+            Method modules_getActive_Method = modulesClass.getDeclaredMethod("getActive");
+            List<?> activeModules = (List<?>) modules_getActive_Method.invoke(modules);
+
+            Class<?> moduleClass = Class.forName("meteordevelopment.meteorclient.systems.modules.Module");
+            Field module_category_Field = moduleClass.getDeclaredField("category");
+            Field module_name_Field = moduleClass.getDeclaredField("name");
+
+            Class<?> categoriesClass = Class.forName("meteordevelopment.meteorclient.systems.modules.Categories");
+            Object combatCategory = categoriesClass.getDeclaredField("Combat").get(null);
+            Object playerCategory = categoriesClass.getDeclaredField("Player").get(null);
+            Object movementCategory = categoriesClass.getDeclaredField("Movement").get(null);
+            Object worldCategory = categoriesClass.getDeclaredField("World").get(null);
+
+            Set<String> unsafePlayerModules = Set.of(
+                "air-place",
+                "anti-hunger",
+                "auto-fish",
+                "fast-use",
+                "ghost-hand",
+                "instant-rebreak",
+                "liquid-interact",
+                "multitask",
+                "no-interact",
+                "no-mining-trace",
+                "reach",
+                "speed-mine"
+            );
+
+            Set<String> unsafeWorldModules = Set.of(
+                "auto-breed",
+                "auto-brewer",
+                "auto-mount",
+                "auto-nametag",
+                "auto-shearer",
+                "auto-smelter",
+                "collisions",
+                "excavator",
+                "flamethrower",
+                "highway-builder",
+                "infinity-miner",
+                "liquid-filler",
+                "nuker",
+                "packet-mine",
+                "spawn-proofer",
+                "timer",
+                "vein-miner"
+            );
+
+            for (Object module : activeModules) {
+                Object category = module_category_Field.get(module);
+
+                if (category == combatCategory || category == movementCategory) {
+                    return true;
+                }
+
+                String name = (String) module_name_Field.get(module);
+                if (category == playerCategory && unsafePlayerModules.contains(name)) {
+                    return true;
+                } else if (category == worldCategory && unsafeWorldModules.contains(name)) {
+                    return true;
+                }
+            }
+        } catch (ReflectiveOperationException e) {
+            error(e);
+        }
+
+        return false;
+    }
+
+    private static void error(Throwable t) {
+        if (!errored) {
+            MainClient.LOGGER.error("Error loading meteor client compat", t);
+            errored = true;
         }
     }
 }

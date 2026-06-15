@@ -2,6 +2,7 @@ package wtf.dupers.dupersunited.mixin.screen;
 
 import wtf.dupers.dupersunited.MainClient;
 import wtf.dupers.dupersunited.commands.subcommands.DupeCommand;
+import wtf.dupers.dupersunited.compat.MeteorCompat;
 import wtf.dupers.dupersunited.features.ConfigManager;
 import wtf.dupers.dupersunited.features.ServerAlertConfig;
 import wtf.dupers.dupersunited.features.proxies.ProxyConfigManager;
@@ -55,7 +56,7 @@ public abstract class MultiplayerScreenMixin extends Screen {
     @Unique
     private boolean hasUnsafeModulesEnabled() {
         return MainClient.MODULE_MANAGER.getEnabledModules().stream()
-                .anyMatch(UNSAFE_MODULES::contains);
+                .anyMatch(UNSAFE_MODULES::contains) || MeteorCompat.shouldWarnUnsafeModules();
     }
 
     @Unique

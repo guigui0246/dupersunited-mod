@@ -1,7 +1,11 @@
 package wtf.dupers.dupersunited.mixin.misc;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.util.ChatMessages;
 import wtf.dupers.dupersunited.MainClient;
 import wtf.dupers.dupersunited.modules.misc.ChatStackerModule;
 import net.minecraft.client.gui.hud.ChatHud;
@@ -16,7 +20,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -84,9 +87,13 @@ public class ChatHudMixin {
         return false;
     }
 
-    @ModifyArg(method = "addVisibleMessage", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/ChatMessages;breakRenderedChatMessageLines(Lnet/minecraft/text/StringVisitable;ILnet/minecraft/client/font/TextRenderer;)Ljava/util/List;"), index = 0)
-    public StringVisitable dupersunited$addMessage(StringVisitable message, @Share("message") LocalRef<MutableText> overriddenMessage) {
-        return overriddenMessage.get() != null ? overriddenMessage.get() : message;
+    @WrapOperation(method = "addVisibleMessage", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/ChatHudLine;breakLines(Lnet/minecraft/client/font/TextRenderer;I)Ljava/util/List;"))
+    public List<OrderedText> dupersunited$addMessage(ChatHudLine instance, TextRenderer textRenderer, int width, Operation<List<OrderedText>> original, @Share("message") LocalRef<MutableText> overriddenMessage) {
+        if (overriddenMessage.get() != null) {
+            return ChatMessages.breakRenderedChatMessageLines(overriddenMessage.get(), width, textRenderer);
+        } else {
+            return original.call(instance, textRenderer, width);
+        }
     }
 
     @Redirect(method = "addVisibleMessage", at = @At(value = "NEW", target = "(ILnet/minecraft/text/OrderedText;Lnet/minecraft/client/gui/hud/MessageIndicator;Z)Lnet/minecraft/client/gui/hud/ChatHudLine$Visible;"))

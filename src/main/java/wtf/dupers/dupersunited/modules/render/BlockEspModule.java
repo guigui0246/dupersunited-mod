@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.DepthTestFunction;
 import net.minecraft.registry.Registries;
+import net.minecraft.util.math.*;
 import wtf.dupers.dupersunited.api.module.Category;
 import wtf.dupers.dupersunited.api.module.Module;
 import wtf.dupers.dupersunited.features.screens.BlockEspScreen;
@@ -20,10 +21,6 @@ import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.World;
@@ -31,9 +28,9 @@ import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.chunk.WorldChunk;
 import org.lwjgl.glfw.GLFW;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.OptionalDouble;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -77,14 +74,11 @@ public class BlockEspModule extends Module {
     );
 
     public static final RenderLayer ESP_LINES = RenderLayer.of(
-        "esp_lines",
-        1536,
-        ESP_LINES_PIPELINE,
-        RenderLayer.MultiPhaseParameters.builder()
-            .lineWidth(new RenderPhase.LineWidth(OptionalDouble.of(1.5)))
-            .layering(RenderPhase.VIEW_OFFSET_Z_LAYERING)
-            .target(RenderPhase.ITEM_ENTITY_TARGET)
-            .build(false)
+        "dupersunited_esp_lines",
+        RenderSetup.builder(ESP_LINES_PIPELINE)
+            .layeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
+            .outputTarget(OutputTarget.ITEM_ENTITY_TARGET)
+            .build()
     );
 
     public BlockEspModule() {
@@ -233,22 +227,14 @@ public class BlockEspModule extends Module {
         VertexConsumer lines = consumers.getBuffer(ESP_LINES);
         int count = 0;
 
-        float r = red.getValue() / 255f;
-        float g = green.getValue() / 255f;
-        float b = blue.getValue() / 255f;
+        int color = ColorHelper.getArgb(red.getValue(), green.getValue(), blue.getValue());
 
         for (RenderShape renderShape : renderShapes) {
             if (count++ >= MAX_RENDER) break;
             double x = renderShape.pos().getX() - cameraPos.x;
             double y = renderShape.pos().getY() - cameraPos.y;
             double z = renderShape.pos().getZ() - cameraPos.z;
-            VoxelShape shape = renderShape.shape();
-            VertexRendering.drawBox(
-                matrices.peek(), lines,
-                x + shape.getMin(Direction.Axis.X), y + shape.getMin(Direction.Axis.Y), z + shape.getMin(Direction.Axis.Z),
-                x + shape.getMax(Direction.Axis.X), y + shape.getMax(Direction.Axis.Y), z + shape.getMax(Direction.Axis.Z),
-                r, g, b, 1f
-            );
+            VertexRendering.drawOutline(matrices, lines, renderShape.shape(), x, y, z, color, 1.5f);
         }
     }
 

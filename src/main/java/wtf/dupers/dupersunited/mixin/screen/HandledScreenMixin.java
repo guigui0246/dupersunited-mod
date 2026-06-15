@@ -61,7 +61,7 @@ public abstract class HandledScreenMixin {
     }
 
     @Inject(method = "drawSlot", at = @At("TAIL"))
-    private void onDrawSlot(DrawContext context, Slot slot, CallbackInfo ci) {
+    private void onDrawSlot(DrawContext context, Slot slot, int mouseX, int mouseY, CallbackInfo ci) {
         GuiUtilsModule mod = MainClient.MODULE_MANAGER.getModule(GuiUtilsModule.class);
         if (mod == null) return;
 

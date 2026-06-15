@@ -191,25 +191,19 @@ public class GuiEvent {
                     );
 
                     if (client.player != null) {
-                        ButtonWidget syncIdBtn = new ButtonWidget(x, y + 172, 110, 12, Text.empty(), btn -> {},
-                                supplier -> Text.empty()) {
-                            @Override
-                            public Text getMessage() {
-                                if (client.player == null) return Text.literal("Sync Id: N/A");
-                                return Text.literal("Sync Id: " + client.player.currentScreenHandler.syncId);
-                            }
-                        };
+                        ButtonWidget syncIdBtn = ButtonWidget.builder(
+                                Text.literal("Sync Id: " + client.player.currentScreenHandler.syncId),
+                                btn -> {})
+                            .dimensions(x, y + 172, 110, 12)
+                            .build();
                         syncIdBtn.active = false;
                         ((ScreenAccessor) screen).dupersunited$addDrawableChild(syncIdBtn);
 
-                        ButtonWidget revisionBtn = new ButtonWidget(x, y + 184, 110, 12, Text.empty(), btn -> {},
-                                supplier -> Text.empty()) {
-                            @Override
-                            public Text getMessage() {
-                                if (client.player == null) return Text.literal("Revision: N/A");
-                                return Text.literal("Revision: " + client.player.currentScreenHandler.getRevision());
-                            }
-                        };
+                        ButtonWidget revisionBtn = ButtonWidget.builder(
+                            Text.literal("Revision: " + client.player.currentScreenHandler.getRevision()),
+                            btn -> {})
+                            .dimensions(x, y + 184, 110, 12)
+                            .build();
                         revisionBtn.active = false;
                         ((ScreenAccessor) screen).dupersunited$addDrawableChild(revisionBtn);
                     }

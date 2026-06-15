@@ -1,11 +1,11 @@
 package wtf.dupers.dupersunited.mixin.render;
 
+import net.minecraft.world.World;
 import wtf.dupers.dupersunited.MainClient;
 import wtf.dupers.dupersunited.modules.render.FreeLookModule;
 import wtf.dupers.dupersunited.modules.render.FreecamModule;
 import net.minecraft.client.render.Camera;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.BlockView;
 import net.minecraft.entity.Entity;
 import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Final;
@@ -24,7 +24,7 @@ public abstract class CameraMixin {
     @Final @Shadow private Quaternionf rotation;
 
     @Inject(method = "update", at = @At("TAIL"))
-    private void onUpdate(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci) {
+    private void onUpdate(World area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci) {
         FreecamModule freecam = MainClient.MODULE_MANAGER.getModule(FreecamModule.class);
         if (freecam != null && freecam.isEnabled() && focusedEntity != null) {
             float lerpedYaw   = (float) freecam.getLerpedYaw(tickDelta);

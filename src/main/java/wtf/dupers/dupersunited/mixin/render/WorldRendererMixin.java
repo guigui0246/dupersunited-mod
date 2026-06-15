@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(WorldRenderer.class)
 public class WorldRendererMixin {
     @Inject(method = "method_62214", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/BufferBuilderStorage;getOutlineVertexConsumers()Lnet/minecraft/client/render/OutlineVertexConsumerProvider;"))
-    private void renderBlockEsp(GpuBufferSlice gpuBufferSlice, WorldRenderState renderStates, Profiler profiler, Matrix4f matrix4f, Handle<Framebuffer> handle, Handle<Framebuffer> handle2, boolean bl, Frustum frustum, Handle<Framebuffer> handle3, Handle<Framebuffer> handle4, CallbackInfo ci, @Local MatrixStack matrices) {
+    private void renderBlockEsp(GpuBufferSlice gpuBufferSlice, WorldRenderState renderStates, Profiler profiler, Matrix4f matrix4f, Handle<Framebuffer> handle, Handle<Framebuffer> handle2, boolean bl, Handle<Framebuffer> handle3, Handle<Framebuffer> handle4, CallbackInfo ci, @Local MatrixStack matrices) {
         BlockEspModule esp = MainClient.MODULE_MANAGER.getModule(BlockEspModule.class);
         if (esp == null || !esp.isEnabled() || BlockEspModule.selectedBlocks.isEmpty()) return;
 

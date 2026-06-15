@@ -32,7 +32,7 @@ public abstract class TitleScreenMixin extends Screen {
 
     @Inject(method = "init", at = @At("TAIL"))
     private void onInit(CallbackInfo ci) {
-        this.splashText = new SplashTextRenderer(SharedVariables.randomQuote());
+        this.splashText = new SplashTextRenderer(Text.literal(SharedVariables.randomQuote()));
     }
 
     @Inject(method = "init", at = @At("TAIL"))

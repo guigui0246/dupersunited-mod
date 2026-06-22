@@ -70,9 +70,9 @@ public abstract class MultiplayerScreenMixin extends Screen {
         if (dupersunited$autoReconnectButton != null)
             dupersunited$autoReconnectButton.setPosition(5, this.height - 110);
         if (dupersunited$rpBypassButton != null)
-            dupersunited$rpBypassButton.setPosition(5, this.height - 85);
+            dupersunited$rpBypassButton.setPosition(110, this.height - 85);
         if (dupersunited$hallOfShameButton != null)
-            dupersunited$hallOfShameButton.setPosition(110, this.height - 85);
+            dupersunited$hallOfShameButton.setPosition(5, this.height - 85);
     }
 
     @Inject(at = @At("TAIL"), method = "init")
@@ -113,7 +113,7 @@ public abstract class MultiplayerScreenMixin extends Screen {
                     btn.setMessage(Text.literal(ConfigManager.rpBypassEnabled ? "RP Bypass: §aON" : "RP Bypass: §cOFF"));
                     ConfigManager.save();
                 }
-        ).dimensions(5, this.height - 85, 100, 20).build());
+        ).dimensions(110, this.height - 85, 100, 20).build());
 
         dupersunited$hallOfShameButton = this.addDrawableChild(ButtonWidget.builder(
                 Text.literal(ConfigManager.serverAlertsEnabled ? "Server Alert: §aON" : "Server Alert: §cOFF"),
@@ -122,7 +122,7 @@ public abstract class MultiplayerScreenMixin extends Screen {
                     btn.setMessage(Text.literal(ConfigManager.serverAlertsEnabled ? "Server Alert: §aON" : "Server Alert: §cOFF"));
                     ConfigManager.save();
                 }
-        ).dimensions(110, this.height - 85, 100, 20).build());
+        ).dimensions(5, this.height - 85, 100, 20).build());
 
         dupersunited$lastWidth = this.width;
         dupersunited$lastHeight = this.height;

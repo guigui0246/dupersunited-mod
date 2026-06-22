@@ -62,11 +62,11 @@ public abstract class MultiplayerScreenMixin extends Screen {
     @Unique
     private void dupersunited$updateButtonPositions() {
         if (dupersunited$brandSpoofButton != null)
-            dupersunited$brandSpoofButton.setPosition(this.width - 220, this.height - 110);
+            dupersunited$brandSpoofButton.setPosition(this.width - 200, this.height - 110);
         if (dupersunited$configsButton != null)
-            dupersunited$configsButton.setPosition(this.width - 105, this.height - 110);
+            dupersunited$configsButton.setPosition(this.width - 85, this.height - 110);
         if (dupersunited$accountsButton != null)
-            dupersunited$accountsButton.setPosition(this.width - 220, this.height - 85);
+            dupersunited$accountsButton.setPosition(this.width - 200, this.height - 85);
         if (dupersunited$autoReconnectButton != null)
             dupersunited$autoReconnectButton.setPosition(5, this.height - 110);
         if (dupersunited$rpBypassButton != null)
@@ -85,17 +85,17 @@ public abstract class MultiplayerScreenMixin extends Screen {
                     btn.setMessage(Text.literal(ConfigManager.brandSpoofEnabled ? "Brand Spoof: §aVanilla" : "Brand Spoof: §cOFF"));
                     ConfigManager.save();
                 }
-        ).dimensions(this.width - 220, this.height - 110, 110, 20).build());
+        ).dimensions(this.width - 200, this.height - 110, 110, 20).build());
 
         dupersunited$configsButton = this.addDrawableChild(ButtonWidget.builder(
                 Text.literal("Settings"),
                 btn -> this.client.setScreen(new DupersUnitedScreen(this))
-        ).dimensions(this.width - 105, this.height - 110, 100, 20).build());
+        ).dimensions(this.width - 85, this.height - 110, 80, 20).build());
 
         dupersunited$accountsButton = this.addDrawableChild(ButtonWidget.builder(
                 Text.literal("Account Manager"),
                 btn -> this.client.setScreen(new AccountsScreen(this))
-        ).dimensions(this.width - 220, this.height - 85, 215, 20).build());
+        ).dimensions(this.width - 200, this.height - 85, 195, 20).build());
 
         dupersunited$autoReconnectButton = this.addDrawableChild(ButtonWidget.builder(
                 Text.literal(ConfigManager.autoReconnectEnabled ? "AutoReconnect: §aON" : "AutoReconnect: §cOFF"),

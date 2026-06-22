@@ -137,7 +137,7 @@ public abstract class MultiplayerScreenMixin extends Screen {
         });
 
         if (MainClient.MODULE_MANAGER.isEnabled(WarnUnsafeModule.class) && hasUnsafeModulesEnabled()) {
-            MinecraftClient.getInstance().setScreen(new UnsafeModuleWarningScreen((Screen) (Object) this, serverInfo));
+            MinecraftClient.getInstance().setScreen(new UnsafeModuleWarningScreen(this, serverInfo));
             ci.cancel();
             return;
         }
@@ -145,13 +145,13 @@ public abstract class MultiplayerScreenMixin extends Screen {
         if (ConfigManager.serverAlertsEnabled && !dupersunited$bypassHosCheck) {
             if (!ServerAlertConfig.isDismissed(serverInfo.address)) {
                 if (HallOfShame.lookupCached(serverInfo.address)) {
-                    MinecraftClient.getInstance().setScreen(new HallOfShame.WarningScreen((Screen) (Object) this, serverInfo));
+                    MinecraftClient.getInstance().setScreen(new HallOfShame.WarningScreen(this, serverInfo));
                     ci.cancel();
                     return;
                 }
 
                 if (HallOfFame.lookupCached(serverInfo.address)) {
-                    MinecraftClient.getInstance().setScreen(new HallOfFame.NoticeScreen((Screen) (Object) this, serverInfo));
+                    MinecraftClient.getInstance().setScreen(new HallOfFame.NoticeScreen(this, serverInfo));
                     ci.cancel();
                     return;
                 }
@@ -160,7 +160,7 @@ public abstract class MultiplayerScreenMixin extends Screen {
                 HallOfShame.checkAsync(serverInfo.address).thenAccept(flagged -> {
                     MinecraftClient.getInstance().execute(() -> {
                         if (flagged && !ServerAlertConfig.isDismissed(serverInfo.address)) {
-                            MinecraftClient.getInstance().setScreen(new HallOfShame.WarningScreen((Screen) (Object) this, serverInfo));
+                            MinecraftClient.getInstance().setScreen(new HallOfShame.WarningScreen(this, serverInfo));
                         } else {
                             dupersunited$bypassHosCheck = true;
                             ((MultiplayerScreen) (Object) this).connect(serverInfo);
@@ -172,7 +172,7 @@ public abstract class MultiplayerScreenMixin extends Screen {
             }
 
             if (ProxyConfigManager.proxyWarningEnabled && ProxyConfigManager.shouldWarn()) {
-                MinecraftClient.getInstance().setScreen(new NoProxyWarningScreen((Screen) (Object) this, serverInfo));
+                MinecraftClient.getInstance().setScreen(new NoProxyWarningScreen(this, serverInfo));
                 ci.cancel();
             }
         }

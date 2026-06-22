@@ -40,6 +40,8 @@ public class ConfigManager {
 
     public static boolean firstLaunch = true;
 
+    private static final JsonObject unregisteredData = new JsonObject();
+
     public static void save() {
         AsyncConfigs.save(serialize(), CONFIG_FILE, "config");
     }
@@ -70,10 +72,12 @@ public class ConfigManager {
         }
         root.add("hud", hudObj);
 
+        JsonObject moduleObj = new JsonObject();
         for (Module module : MainClient.MODULE_MANAGER.modules()) {
             JsonElement moduleData = module.writeJson();
-            root.add(module.getIdentifier(), moduleData);
+            moduleObj.add(module.getIdentifier(), moduleData);
         }
+        root.add("modules", moduleObj);
 
         JsonObject keybindsObj = new JsonObject();
         for (Keybind kb : KeybindManager.getRegisteredKeybinds().values()) {
@@ -113,6 +117,11 @@ public class ConfigManager {
             root.add("clickguiHudPanelPosition", clickguiHudPanelPosition);
         }
 
+        if (!unregisteredData.isEmpty()) {
+            unregisteredData.asMap().forEach(root::add);
+            unregisteredData.asMap().clear();
+        }
+
         return root;
     }
 
@@ -147,27 +156,42 @@ public class ConfigManager {
                 JsonObject hudObj = root.getAsJsonObject("hud");
                 for (HudElement el : HUD_ELEMENTS) {
                     if (!hudObj.has(el.id)) continue;
-                    JsonObject pos = hudObj.getAsJsonObject(el.id);
+                    JsonObject pos = hudObj.remove(el.id).getAsJsonObject();
                     if (pos.has("x")) el.x = pos.get("x").getAsInt();
                     if (pos.has("y")) el.y = pos.get("y").getAsInt();
                     if (pos.has("scale")) el.scale = pos.get("scale").getAsFloat();
                 }
+
+                if (!hudObj.isEmpty()) {
+                    unregisteredData.add("hud", hudObj.deepCopy());
+                }
             }
 
-            for (Module module : MainClient.MODULE_MANAGER.modules()) {
-                boolean useIdentifier = root.has(module.getIdentifier());
-                if (!useIdentifier && !root.has(module.getName())) continue;
+            boolean backwardsCompat = !root.has("modules");
+            JsonObject modulesObj = backwardsCompat ? root : root.getAsJsonObject("modules");
 
-                JsonElement moduleData = root.get(useIdentifier ? module.getIdentifier() : module.getName());
+            for (Module module : MainClient.MODULE_MANAGER.modules()) {
+                boolean useIdentifier = modulesObj.has(module.getIdentifier());
+                if (!useIdentifier && !modulesObj.has(module.getName())) continue;
+
+                JsonElement moduleData = modulesObj.remove(useIdentifier ? module.getIdentifier() : module.getName());
                 module.readJson(moduleData);
+            }
+
+            if (!backwardsCompat) {
+                unregisteredData.add("modules", modulesObj.deepCopy());
             }
 
             if (root.has("keybinds")) {
                 JsonObject keybindsObj = root.getAsJsonObject("keybinds");
                 for (Keybind kb : KeybindManager.getRegisteredKeybinds().values()) {
                     if (keybindsObj.has(kb.getName())) {
-                        kb.setKeyCode(keybindsObj.get(kb.getName()).getAsInt());
+                        kb.setKeyCode(keybindsObj.remove(kb.getName()).getAsInt());
                     }
+                }
+
+                if (!keybindsObj.isEmpty()) {
+                    unregisteredData.add("keybinds", keybindsObj.deepCopy());
                 }
             }
 

@@ -77,15 +77,34 @@ public abstract class MultiplayerScreenMixin extends Screen {
 
     @Inject(at = @At("TAIL"), method = "init")
     private void dupersunited$addProxyButton(CallbackInfo ci) {
-
-        dupersunited$brandSpoofButton = this.addDrawableChild(ButtonWidget.builder(
+        if (!MeteorCompat.isPresent()) {
+            dupersunited$brandSpoofButton = this.addDrawableChild(ButtonWidget.builder(
                 Text.literal(ConfigManager.brandSpoofEnabled ? "Brand Spoof: §aVanilla" : "Brand Spoof: §cOFF"),
                 btn -> {
                     ConfigManager.brandSpoofEnabled = !ConfigManager.brandSpoofEnabled;
                     btn.setMessage(Text.literal(ConfigManager.brandSpoofEnabled ? "Brand Spoof: §aVanilla" : "Brand Spoof: §cOFF"));
                     ConfigManager.save();
                 }
-        ).dimensions(this.width - 200, this.height - 110, 110, 20).build());
+            ).dimensions(this.width - 200, this.height - 110, 110, 20).build());
+
+            dupersunited$autoReconnectButton = this.addDrawableChild(ButtonWidget.builder(
+                Text.literal(ConfigManager.autoReconnectEnabled ? "AutoReconnect: §aON" : "AutoReconnect: §cOFF"),
+                btn -> {
+                    ConfigManager.autoReconnectEnabled = !ConfigManager.autoReconnectEnabled;
+                    ConfigManager.save();
+                    btn.setMessage(Text.literal(ConfigManager.autoReconnectEnabled ? "AutoReconnect: §aON" : "AutoReconnect: §cOFF"));
+                }
+            ).dimensions(5, this.height - 110, 130, 20).build());
+
+            dupersunited$rpBypassButton = this.addDrawableChild(ButtonWidget.builder(
+                Text.literal(ConfigManager.rpBypassEnabled ? "RP Bypass: §aON" : "RP Bypass: §cOFF"),
+                btn -> {
+                    ConfigManager.rpBypassEnabled = !ConfigManager.rpBypassEnabled;
+                    btn.setMessage(Text.literal(ConfigManager.rpBypassEnabled ? "RP Bypass: §aON" : "RP Bypass: §cOFF"));
+                    ConfigManager.save();
+                }
+            ).dimensions(110, this.height - 85, 100, 20).build());
+        }
 
         dupersunited$configsButton = this.addDrawableChild(ButtonWidget.builder(
                 Text.literal("Settings"),
@@ -96,24 +115,6 @@ public abstract class MultiplayerScreenMixin extends Screen {
                 Text.literal("Account Manager"),
                 btn -> this.client.setScreen(new AccountsScreen(this))
         ).dimensions(this.width - 200, this.height - 85, 195, 20).build());
-
-        dupersunited$autoReconnectButton = this.addDrawableChild(ButtonWidget.builder(
-                Text.literal(ConfigManager.autoReconnectEnabled ? "AutoReconnect: §aON" : "AutoReconnect: §cOFF"),
-                btn -> {
-                    ConfigManager.autoReconnectEnabled = !ConfigManager.autoReconnectEnabled;
-                    ConfigManager.save();
-                    btn.setMessage(Text.literal(ConfigManager.autoReconnectEnabled ? "AutoReconnect: §aON" : "AutoReconnect: §cOFF"));
-                }
-        ).dimensions(5, this.height - 110, 130, 20).build());
-
-        dupersunited$rpBypassButton = this.addDrawableChild(ButtonWidget.builder(
-                Text.literal(ConfigManager.rpBypassEnabled ? "RP Bypass: §aON" : "RP Bypass: §cOFF"),
-                btn -> {
-                    ConfigManager.rpBypassEnabled = !ConfigManager.rpBypassEnabled;
-                    btn.setMessage(Text.literal(ConfigManager.rpBypassEnabled ? "RP Bypass: §aON" : "RP Bypass: §cOFF"));
-                    ConfigManager.save();
-                }
-        ).dimensions(110, this.height - 85, 100, 20).build());
 
         dupersunited$hallOfShameButton = this.addDrawableChild(ButtonWidget.builder(
                 Text.literal(ConfigManager.serverAlertsEnabled ? "Server Alert: §aON" : "Server Alert: §cOFF"),

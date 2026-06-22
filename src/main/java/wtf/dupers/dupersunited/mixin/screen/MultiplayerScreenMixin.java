@@ -61,18 +61,31 @@ public abstract class MultiplayerScreenMixin extends Screen {
 
     @Unique
     private void dupersunited$updateButtonPositions() {
-        if (dupersunited$brandSpoofButton != null)
-            dupersunited$brandSpoofButton.setPosition(this.width - 200, this.height - 110);
-        if (dupersunited$configsButton != null)
-            dupersunited$configsButton.setPosition(this.width - 85, this.height - 110);
-        if (dupersunited$accountsButton != null)
-            dupersunited$accountsButton.setPosition(this.width - 200, this.height - 85);
-        if (dupersunited$autoReconnectButton != null)
-            dupersunited$autoReconnectButton.setPosition(5, this.height - 110);
-        if (dupersunited$rpBypassButton != null)
-            dupersunited$rpBypassButton.setPosition(110, this.height - 85);
-        if (dupersunited$hallOfShameButton != null)
-            dupersunited$hallOfShameButton.setPosition(5, this.height - 85);
+        boolean show = this.width >= 600;
+        if (dupersunited$brandSpoofButton != null) {
+            dupersunited$brandSpoofButton.visible = show;
+            dupersunited$brandSpoofButton.setPosition(this.width - 200, this.height - 50);
+        }
+        if (dupersunited$configsButton != null) {
+            dupersunited$configsButton.visible = show;
+            dupersunited$configsButton.setPosition(this.width - 85, this.height - 50);
+        }
+        if (dupersunited$accountsButton != null) {
+            dupersunited$accountsButton.visible = show;
+            dupersunited$accountsButton.setPosition(this.width - 220, this.height - 25);
+        }
+        if (dupersunited$autoReconnectButton != null) {
+            dupersunited$autoReconnectButton.visible = show;
+            dupersunited$autoReconnectButton.setPosition(5, this.height - 50);
+        }
+        if (dupersunited$rpBypassButton != null) {
+            dupersunited$rpBypassButton.visible = show;
+            dupersunited$rpBypassButton.setPosition(110, this.height - 25);
+        }
+        if (dupersunited$hallOfShameButton != null) {
+            dupersunited$hallOfShameButton.visible = show;
+            dupersunited$hallOfShameButton.setPosition(5, this.height - 25);
+        }
     }
 
     @Inject(at = @At("TAIL"), method = "init")
@@ -85,8 +98,7 @@ public abstract class MultiplayerScreenMixin extends Screen {
                     btn.setMessage(Text.literal(ConfigManager.brandSpoofEnabled ? "Brand Spoof: §aVanilla" : "Brand Spoof: §cOFF"));
                     ConfigManager.save();
                 }
-            ).dimensions(this.width - 200, this.height - 110, 110, 20).build());
-
+            ).dimensions(this.width - 200, this.height - 50, 110, 20).build());
             dupersunited$autoReconnectButton = this.addDrawableChild(ButtonWidget.builder(
                 Text.literal(ConfigManager.autoReconnectEnabled ? "AutoReconnect: §aON" : "AutoReconnect: §cOFF"),
                 btn -> {
@@ -94,7 +106,7 @@ public abstract class MultiplayerScreenMixin extends Screen {
                     ConfigManager.save();
                     btn.setMessage(Text.literal(ConfigManager.autoReconnectEnabled ? "AutoReconnect: §aON" : "AutoReconnect: §cOFF"));
                 }
-            ).dimensions(5, this.height - 110, 130, 20).build());
+            ).dimensions(5, this.height - 50, 130, 20).build());
 
             dupersunited$rpBypassButton = this.addDrawableChild(ButtonWidget.builder(
                 Text.literal(ConfigManager.rpBypassEnabled ? "RP Bypass: §aON" : "RP Bypass: §cOFF"),
@@ -103,18 +115,18 @@ public abstract class MultiplayerScreenMixin extends Screen {
                     btn.setMessage(Text.literal(ConfigManager.rpBypassEnabled ? "RP Bypass: §aON" : "RP Bypass: §cOFF"));
                     ConfigManager.save();
                 }
-            ).dimensions(110, this.height - 85, 100, 20).build());
+            ).dimensions(110, this.height - 25, 100, 20).build());
         }
 
         dupersunited$configsButton = this.addDrawableChild(ButtonWidget.builder(
                 Text.literal("Settings"),
                 btn -> this.client.setScreen(new DupersUnitedScreen(this))
-        ).dimensions(this.width - 85, this.height - 110, 80, 20).build());
+        ).dimensions(this.width - 85, this.height - 50, 80, 20).build());
 
         dupersunited$accountsButton = this.addDrawableChild(ButtonWidget.builder(
                 Text.literal("Account Manager"),
                 btn -> this.client.setScreen(new AccountsScreen(this))
-        ).dimensions(this.width - 200, this.height - 85, 195, 20).build());
+        ).dimensions(this.width - 220, this.height - 25, 215, 20).build());
 
         dupersunited$hallOfShameButton = this.addDrawableChild(ButtonWidget.builder(
                 Text.literal(ConfigManager.serverAlertsEnabled ? "Server Alert: §aON" : "Server Alert: §cOFF"),
@@ -123,7 +135,15 @@ public abstract class MultiplayerScreenMixin extends Screen {
                     btn.setMessage(Text.literal(ConfigManager.serverAlertsEnabled ? "Server Alert: §aON" : "Server Alert: §cOFF"));
                     ConfigManager.save();
                 }
-        ).dimensions(5, this.height - 85, 100, 20).build());
+        ).dimensions(5, this.height - 25, 100, 20).build());
+
+        boolean show = this.width >= 600;
+        dupersunited$configsButton.visible = show;
+        dupersunited$accountsButton.visible = show;
+        dupersunited$hallOfShameButton.visible = show;
+        if (dupersunited$brandSpoofButton != null) dupersunited$brandSpoofButton.visible = show;
+        if (dupersunited$autoReconnectButton != null) dupersunited$autoReconnectButton.visible = show;
+        if (dupersunited$rpBypassButton != null) dupersunited$rpBypassButton.visible = show;
 
         dupersunited$lastWidth = this.width;
         dupersunited$lastHeight = this.height;
@@ -188,6 +208,8 @@ public abstract class MultiplayerScreenMixin extends Screen {
         }
 
         super.render(context, mouseX, mouseY, delta);
+
+        if (this.width < 600) return;
 
         String currentUsername = MinecraftClient.getInstance().getSession().getUsername();
         context.drawTextWithShadow(

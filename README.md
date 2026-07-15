@@ -44,9 +44,10 @@ then go back to "Proxy Manager" and make sure Proxies are **ENABLED** for it to 
 
 # What do all the buttons in the Multiplayer screen do?
 
-### HoS (Hall of Shame)
+### Server Alerts
 
-This is the [Hall of Shame](https://github.com/DupersUnited/hallofshame/blob/main/notcoolman.json), it lists known servers who use exploits to track users, use [ExploitPreventer](https://github.com/NikOverflow/ExploitPreventer) or [OpSec](https://github.com/aurickk/OpSec) to be fully safe from these exploits. All HoS does is puts a warning screen before logging into a server that uses an exploit. <img width="923" height="289" alt="Screenshot 2026-04-29 213938" src="https://github.com/user-attachments/assets/27163370-c4ed-406a-a79f-275713cf3575" />
+Server Alerts lists known servers who use exploits to track users & servers who **ETHICALLY** monetize their servers (Non P2W/Gambling), use [ExploitPreventer](https://github.com/NikOverflow/ExploitPreventer) or [OpSec](https://github.com/aurickk/OpSec) to be fully safe from those exploits. All Server Alerts does is puts a warning screen before logging into a server that uses an exploit
+<img width="923" height="289" alt="Screenshot 2026-04-29 213938" src="https://github.com/user-attachments/assets/27163370-c4ed-406a-a79f-275713cf3575" />
 
 ### RP Bypass
 Bypasses required resource pack on a servers

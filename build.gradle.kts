@@ -5,7 +5,7 @@ plugins {
 
 base {
     archivesName.set(providers.gradleProperty("archives_base_name"))
-    version = "${providers.gradleProperty("mod_version").get()}+${providers.gradleProperty("minecraft_version").get()}"
+    version = "${providers.gradleProperty("version").get()}+${libs.versions.minecraft.get()}"
     group = providers.gradleProperty("maven_group").get()
 }
 

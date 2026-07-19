@@ -58,19 +58,19 @@ public class HudEditorScreen extends Screen {
             ctx.fill(sx, el.y, sx + 1, el.y + h, border);
             ctx.fill(sx + w - 1, el.y, sx + w, el.y + h, border);
 
-            if (hovered) {
-                String alignIcon = el.rightAligned ? "◀" : "▶";
-                String scaleLabel = String.format("%.1fx %s", el.scale, alignIcon);
-                int labelX = sx + w - textRenderer.getWidth(scaleLabel) - 2;
-                ctx.drawText(textRenderer, scaleLabel, labelX, el.y + 1, 0xFFCBA6F7, true);
-            }
-
             var matrices = ctx.getMatrices();
             matrices.pushMatrix();
             matrices.translate((float) sx + 2.0f, (float) el.y + 1.0f);
             matrices.scale(el.scale, el.scale);
             ctx.drawText(textRenderer, getPreview(el), 0, 0, 0xFFFFFFFF, true);
             matrices.popMatrix();
+
+            if (hovered) {
+                String alignIcon = el.rightAligned ? "◀" : "▶";
+                String scaleLabel = String.format("%.1fx %s", el.scale, alignIcon);
+                int labelX = sx + w - textRenderer.getWidth(scaleLabel) - 2;
+                ctx.drawText(textRenderer, scaleLabel, labelX, el.y + 1, 0xFFCBA6F7, true);
+            }
         }
 
         int btnX = width / 2 - RESET_W / 2;

@@ -4,7 +4,7 @@ A Minecraft mod to help debug plugins and servers. This Mod does **NOT** give yo
 
 ## Installation
 
-1. Download the latest release from the [releases](https://github.com/DupersUnited/dupersunited-public/releases) page
+1. Download the latest release from the [releases](https://github.com/DupersUnited/dupersunited-mod/releases) page
 2. Place the `.jar` file in your `mods` folder
 3. Launch Minecraft with Fabric
 

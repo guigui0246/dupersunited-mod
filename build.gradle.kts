@@ -88,6 +88,14 @@ publishing {
     }
 
     repositories {
-        mavenLocal() // till release
+        maven("https://maven.dupers.wtf/releases") {
+            name = "DupersWtfMaven"
+
+            credentials(PasswordCredentials::class)
+
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
+        }
     }
 }
